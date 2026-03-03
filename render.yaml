@@ -54,7 +54,6 @@ services:
   - type: web
     name: vault1040
     runtime: static
-    region: oregon
     rootDir: vault1040/apps/client
     buildCommand: pnpm install && pnpm run build
     staticPublishPath: dist
