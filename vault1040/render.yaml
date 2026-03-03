@@ -1,0 +1,69 @@
+# Render Blueprint for Vault1040
+# https://render.com/docs/blueprint-spec
+
+databases:
+  - name: vault1040-db
+    databaseName: vault1040
+    user: vault1040_user
+    region: oregon
+    plan: starter
+    postgresMajorVersion: 16
+
+services:
+  # Backend API Service
+  - type: web
+    name: vault1040-api
+    runtime: node
+    region: oregon
+    plan: starter
+    rootDir: vault1040/apps/server
+    buildCommand: pnpm install && pnpm run build && pnpm run db:migrate:deploy
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: vault1040-db
+          property: connectionString
+      - key: CLIENT_URL
+        sync: false  # Set manually after frontend deploys
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: STRIPE_SECRET_KEY
+        sync: false  # Set manually in dashboard
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        value: filing@vault1040.com
+      - key: RESEND_FROM_NAME
+        value: Vault1040
+
+  # Frontend Static Site
+  - type: web
+    name: vault1040
+    runtime: static
+    region: oregon
+    rootDir: vault1040/apps/client
+    buildCommand: pnpm install && pnpm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        sync: false  # Set to backend URL + /api
+      - key: VITE_STRIPE_PUBLISHABLE_KEY
+        sync: false

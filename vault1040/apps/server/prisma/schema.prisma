@@ -1,0 +1,402 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  passwordHash      String    @map("password_hash")
+  firstName         String    @map("first_name")
+  lastName          String    @map("last_name")
+  phone             String?
+  role              UserRole  @default(CLIENT)
+  isEmailVerified   Boolean   @default(false) @map("is_email_verified")
+
+  resetToken        String?   @map("reset_token")
+  resetTokenExpiry  DateTime? @map("reset_token_expiry")
+
+  verifyToken       String?   @map("verify_token")
+  verifyTokenExpiry DateTime? @map("verify_token_expiry")
+
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  lastLoginAt       DateTime? @map("last_login_at")
+
+  bookings          Booking[]
+  refreshTokens     RefreshToken[]
+  annualReportFilings AnnualReportFiling[]
+  client            Client?
+
+  @@map("users")
+}
+
+enum UserRole {
+  CLIENT
+  ADMIN
+  STAFF
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  token     String    @unique
+  userId    String    @map("user_id")
+  expiresAt DateTime  @map("expires_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  revokedAt DateTime? @map("revoked_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// ============================================
+// SERVICES
+// ============================================
+
+model Service {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String
+  duration    Int      // Duration in minutes
+  price       Decimal  @db.Decimal(10, 2)
+  isActive    Boolean  @default(true) @map("is_active")
+  sortOrder   Int      @default(0) @map("sort_order")
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  bookings    Booking[]
+
+  @@map("services")
+}
+
+// ============================================
+// BOOKINGS / APPOINTMENTS
+// ============================================
+
+model Booking {
+  id              String        @id @default(uuid())
+
+  userId          String?       @map("user_id")
+
+  guestEmail      String?       @map("guest_email")
+  guestFirstName  String?       @map("guest_first_name")
+  guestLastName   String?       @map("guest_last_name")
+  guestPhone      String?       @map("guest_phone")
+
+  serviceId       String        @map("service_id")
+
+  scheduledDate   DateTime      @map("scheduled_date")
+  scheduledTime   String        @map("scheduled_time")
+  endTime         String        @map("end_time")
+  duration        Int
+
+  status          BookingStatus @default(PENDING)
+
+  notes           String?       @db.Text
+
+  confirmationCode String       @unique @map("confirmation_code")
+
+  cancelledAt     DateTime?     @map("cancelled_at")
+  cancellationReason String?    @map("cancellation_reason")
+
+  reminderSentAt  DateTime?     @map("reminder_sent_at")
+
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  user            User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  service         Service       @relation(fields: [serviceId], references: [id])
+
+  @@index([userId])
+  @@index([serviceId])
+  @@index([scheduledDate])
+  @@index([status])
+  @@index([confirmationCode])
+  @@map("bookings")
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+// ============================================
+// AVAILABILITY
+// ============================================
+
+model AvailabilitySchedule {
+  id          String   @id @default(uuid())
+  dayOfWeek   Int      @map("day_of_week")
+  startTime   String   @map("start_time")
+  endTime     String   @map("end_time")
+  isActive    Boolean  @default(true) @map("is_active")
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([dayOfWeek, startTime])
+  @@map("availability_schedules")
+}
+
+model BlockedDate {
+  id        String   @id @default(uuid())
+  date      DateTime @db.Date
+  reason    String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([date])
+  @@map("blocked_dates")
+}
+
+// ============================================
+// CONTACT FORM SUBMISSIONS
+// ============================================
+
+model ContactSubmission {
+  id              String        @id @default(uuid())
+
+  firstName       String        @map("first_name")
+  lastName        String        @map("last_name")
+  email           String
+  phone           String?
+
+  subject         String
+  message         String        @db.Text
+
+  serviceInterest String?       @map("service_interest")
+
+  status          ContactStatus @default(NEW)
+
+  adminNotes      String?       @map("admin_notes") @db.Text
+  respondedAt     DateTime?     @map("responded_at")
+  respondedBy     String?       @map("responded_by")
+
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  ipAddress       String?       @map("ip_address")
+  userAgent       String?       @map("user_agent")
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("contact_submissions")
+}
+
+enum ContactStatus {
+  NEW
+  IN_PROGRESS
+  RESPONDED
+  ARCHIVED
+  SPAM
+}
+
+// ============================================
+// ANNUAL REPORT FILINGS
+// ============================================
+
+model AnnualReportFiling {
+  id                String              @id @default(uuid())
+  referenceNumber   String              @unique @map("reference_number")
+
+  // User association (optional for guest submissions)
+  userId            String?             @map("user_id")
+
+  // Contact info
+  contactEmail      String              @map("contact_email")
+  contactPhone      String?             @map("contact_phone")
+
+  // Entity information
+  documentNumber    String              @map("document_number")
+  entityType        String              @map("entity_type")
+  businessName      String              @map("business_name")
+  fein              String
+
+  // Addresses (stored as JSON)
+  principalOffice   Json                @map("principal_office")
+  mailingAddress    Json                @map("mailing_address")
+  registeredAgent   Json                @map("registered_agent")
+
+  // Officers/Members/Partners (stored as JSON arrays)
+  officers          Json?               @default("[]")
+  llcMembers        Json?               @map("llc_members") @default("[]")
+  lpPartners        Json?               @map("lp_partners") @default("[]")
+
+  // Fee calculation snapshot
+  stateFee          Decimal             @map("state_fee") @db.Decimal(10, 2)
+  serviceFee        Decimal             @map("service_fee") @db.Decimal(10, 2)
+  lateFee           Decimal             @map("late_fee") @db.Decimal(10, 2)
+  totalFee          Decimal             @map("total_fee") @db.Decimal(10, 2)
+
+  // Stripe payment fields
+  stripePaymentIntentId String?         @unique @map("stripe_payment_intent_id")
+  paymentStatus     PaymentStatus       @default(PENDING) @map("payment_status")
+  paidAt            DateTime?           @map("paid_at")
+  paymentMethod     String?             @map("payment_method")
+  paymentLast4      String?             @map("payment_last4")
+
+  // Payment source tracking (for reporting)
+  paymentSource         String?         @map("payment_source") @default("stripe") // stripe, external
+  externalPaymentMethod String?         @map("external_payment_method") // cash, check, subscription, wire, ach, other
+
+  // Status tracking
+  status            FilingStatus        @default(PENDING)
+
+  // Admin tracking
+  adminNotes        String?             @map("admin_notes") @db.Text
+  processedAt       DateTime?           @map("processed_at")
+  processedBy       String?             @map("processed_by")
+
+  // Metadata
+  ipAddress         String?             @map("ip_address")
+  userAgent         String?             @map("user_agent")
+
+  createdAt         DateTime            @default(now()) @map("created_at")
+  updatedAt         DateTime            @updatedAt @map("updated_at")
+
+  user              User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([documentNumber])
+  @@index([createdAt])
+  @@map("annual_report_filings")
+}
+
+enum FilingStatus {
+  PENDING
+  PAYMENT_RECEIVED
+  IN_PROGRESS
+  SUBMITTED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+// ============================================
+// CLIENT MANAGEMENT (for pre-fill feature)
+// ============================================
+
+model Client {
+  id              String    @id @default(uuid())
+
+  // Contact info
+  companyName     String    @map("company_name")
+  contactEmail    String    @map("contact_email")
+  contactPhone    String?   @map("contact_phone")
+
+  // Identifiers
+  documentNumber  String?   @unique @map("document_number")
+  fein            String?
+
+  // Optional link to User account
+  userId          String?   @unique @map("user_id")
+
+  // Admin tracking
+  notes           String?   @db.Text
+  createdBy       String    @map("created_by")
+
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  user            User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  sunbizData      ClientSunbizData[]
+  prefillTokens   PrefillToken[]
+
+  @@index([contactEmail])
+  @@index([companyName])
+  @@map("clients")
+}
+
+model ClientSunbizData {
+  id              String    @id @default(uuid())
+  clientId        String    @map("client_id")
+  reportYear      Int       @map("report_year")
+
+  // Entity information (from Sunbiz)
+  documentNumber  String    @map("document_number")
+  entityType      String    @map("entity_type")
+  businessName    String    @map("business_name")
+  fein            String
+
+  // Addresses (stored as JSON)
+  principalOffice Json      @map("principal_office")
+  mailingAddress  Json      @map("mailing_address")
+  registeredAgent Json      @map("registered_agent")
+
+  // Officers/Members/Partners (stored as JSON arrays)
+  officers        Json?     @default("[]")
+  llcMembers      Json?     @map("llc_members") @default("[]")
+  lpPartners      Json?     @map("lp_partners") @default("[]")
+
+  // Admin tracking
+  enteredBy       String    @map("entered_by")
+
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  client          Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, reportYear])
+  @@index([reportYear])
+  @@map("client_sunbiz_data")
+}
+
+model PrefillToken {
+  id            String    @id @default(uuid())
+  token         String    @unique
+  clientId      String    @map("client_id")
+  reportYear    Int       @map("report_year")
+
+  // Token lifecycle
+  expiresAt     DateTime  @map("expires_at")
+  usedAt        DateTime? @map("used_at")
+  submittedAt   DateTime? @map("submitted_at")
+
+  // Email tracking
+  emailSentAt   DateTime? @map("email_sent_at")
+  emailId       String?   @map("email_id")
+
+  // External payment confirmation (for cash, check, subscription, etc.)
+  paymentConfirmed      Boolean   @default(false) @map("payment_confirmed")
+  paymentConfirmedAt    DateTime? @map("payment_confirmed_at")
+  paymentConfirmedBy    String?   @map("payment_confirmed_by")
+  externalPaymentMethod String?   @map("external_payment_method") // cash, check, subscription, wire, ach, other
+  externalPaymentNotes  String?   @map("external_payment_notes")
+
+  // Security
+  ipAddress     String?   @map("ip_address")
+
+  createdAt     DateTime  @default(now()) @map("created_at")
+  createdBy     String    @map("created_by")
+
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([clientId])
+  @@index([expiresAt])
+  @@map("prefill_tokens")
+}
