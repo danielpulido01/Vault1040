@@ -84,7 +84,7 @@ async function sendWithMandrill(params: SendEmailParams): Promise<{ success: boo
       }),
     });
 
-    const data = await response.json();
+    const data = await response.json() as Array<{ status: string; _id: string; reject_reason?: string }>;
 
     if (data[0]?.status === 'sent' || data[0]?.status === 'queued') {
       return { success: true, messageId: data[0]._id };

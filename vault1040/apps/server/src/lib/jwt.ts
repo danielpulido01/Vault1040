@@ -10,8 +10,8 @@ interface TokenPayload {
 
 export const generateAccessToken = (payload: TokenPayload): string => {
   return jwt.sign(payload, config.jwt.accessSecret, {
-    expiresIn: config.jwt.accessExpiresIn as string | number,
-  });
+    expiresIn: config.jwt.accessExpiresIn,
+  } as jwt.SignOptions);
 };
 
 export const generateRefreshToken = (payload: TokenPayload): string => {
@@ -19,8 +19,8 @@ export const generateRefreshToken = (payload: TokenPayload): string => {
   // even if generated within the same second
   const jti = crypto.randomBytes(16).toString('hex');
   return jwt.sign({ ...payload, jti }, config.jwt.refreshSecret, {
-    expiresIn: config.jwt.refreshExpiresIn as string | number,
-  });
+    expiresIn: config.jwt.refreshExpiresIn,
+  } as jwt.SignOptions);
 };
 
 export const verifyAccessToken = (token: string): TokenPayload => {
