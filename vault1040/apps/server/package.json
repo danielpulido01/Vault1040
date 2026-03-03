@@ -33,6 +33,7 @@
     "@types/cookie-parser": "^1.4.6",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
+    "@types/express-serve-static-core": "^4.19.0",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^20.11.16",
     "@types/nodemailer": "^6.4.14",

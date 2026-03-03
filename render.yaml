@@ -17,7 +17,7 @@ services:
     region: oregon
     plan: free
     rootDir: vault1040/apps/server
-    buildCommand: pnpm install && pnpm run build && pnpm run db:migrate:deploy
+    buildCommand: pnpm install && pnpm run db:generate && pnpm run build && pnpm run db:migrate:deploy
     startCommand: node dist/index.js
     healthCheckPath: /health
     envVars:

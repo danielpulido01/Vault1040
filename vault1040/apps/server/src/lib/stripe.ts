@@ -6,6 +6,6 @@ if (!config.stripe.secretKey) {
 }
 
 export const stripe = new Stripe(config.stripe.secretKey, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2023-10-16',
   typescript: true,
 });
