@@ -89,6 +89,19 @@ pnpm db:studio    # Open Prisma Studio (localhost:5555)
 ### Client (`apps/client/.env`)
 - `VITE_API_URL` - Backend API URL (http://localhost:3001/api)
 
+### Production Database (Render)
+
+Use any database client (pgAdmin, DBeaver, TablePlus, DataGrip) with:
+
+| Field | Value |
+|-------|-------|
+| Host | `dpg-d6jgh9vgi27c73d4k1r0-a.oregon-postgres.render.com` |
+| Port | `5432` |
+| Database | `vault1040` |
+| Username | `vault1040_user` |
+| Password | `ShjzFT264MSapcUdZv9Vecdx8JNkPbT8` |
+| SSL | Required |
+
 ## Design System
 
 ### Colors
