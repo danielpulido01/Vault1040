@@ -37,12 +37,13 @@ app.use(cookieParser());
 app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), handleWebhook);
 
 app.use(express.json());
-app.use(limiter);
 
-// Health check
+// Health check (before rate limiter to avoid 429 on Render health checks)
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+app.use(limiter);
 
 // API Routes
 app.use('/api/auth', authRoutes);

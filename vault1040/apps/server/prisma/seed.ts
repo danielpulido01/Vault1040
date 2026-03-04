@@ -1,9 +1,68 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
+const SALT_ROUNDS = 12;
+
+async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, SALT_ROUNDS);
+}
+
 async function main() {
   console.log('Seeding database...');
+
+  // Create users
+  const users = [
+    {
+      email: 'admin@vault1040.com',
+      password: 'Admin123!',
+      firstName: 'Admin',
+      lastName: 'User',
+      role: 'ADMIN' as const,
+      isEmailVerified: true,
+    },
+    {
+      email: 'staff@vault1040.com',
+      password: 'Staff123!',
+      firstName: 'Staff',
+      lastName: 'Member',
+      role: 'STAFF' as const,
+      isEmailVerified: true,
+    },
+    {
+      email: 'client@example.com',
+      password: 'Client123!',
+      firstName: 'Test',
+      lastName: 'Client',
+      role: 'CLIENT' as const,
+      isEmailVerified: true,
+    },
+  ];
+
+  for (const user of users) {
+    const passwordHash = await hashPassword(user.password);
+    await prisma.user.upsert({
+      where: { email: user.email },
+      update: {
+        passwordHash,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        isEmailVerified: user.isEmailVerified,
+      },
+      create: {
+        email: user.email,
+        passwordHash,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        isEmailVerified: user.isEmailVerified,
+      },
+    });
+  }
+
+  console.log('Created users');
 
   // Create services
   const services = [
