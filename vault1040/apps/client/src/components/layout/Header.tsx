@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { Menu, X, User, LogOut, Globe } from "lucide-react";
+import { Menu, X, User, LogOut, Globe, ShieldCheck } from "lucide-react";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { useTranslation } from "@/i18n";
 import { Button } from "@/components/ui/Button";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { isAuthenticated, user, clearAuth } = useAuthStore();
+  const { isAuthenticated, user, clearAuth, accessToken } = useAuthStore();
   const { t, language, setLanguage } = useTranslation();
 
   useEffect(() => {
@@ -30,6 +30,7 @@ export function Header() {
       await fetch("/api/auth/logout", {
         method: "POST",
         credentials: "include",
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
       });
     } catch {
       // Ignore error
@@ -102,6 +103,15 @@ export function Header() {
 
             {isAuthenticated ? (
               <>
+                {(user?.role === 'ADMIN' || user?.role === 'STAFF') && (
+                  <Link
+                    to="/admin"
+                    className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-primary transition-all hover:bg-primary/10"
+                  >
+                    <ShieldCheck className="h-4 w-4" />
+                    Admin Dashboard
+                  </Link>
+                )}
                 <Link
                   to="/dashboard"
                   className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 transition-all hover:bg-gray-100 hover:text-primary"
@@ -186,6 +196,16 @@ export function Header() {
               <div className="mt-3 flex flex-col gap-2 border-t border-gray-100 pt-3">
                 {isAuthenticated ? (
                   <>
+                    {(user?.role === 'ADMIN' || user?.role === 'STAFF') && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-base font-medium text-primary hover:bg-primary/10"
+                      >
+                        <ShieldCheck className="h-5 w-5" />
+                        Admin Dashboard
+                      </Link>
+                    )}
                     <Link
                       to="/dashboard"
                       onClick={() => setIsMobileMenuOpen(false)}

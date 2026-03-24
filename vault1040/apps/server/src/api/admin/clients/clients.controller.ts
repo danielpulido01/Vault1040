@@ -79,9 +79,34 @@ export const getClient = async (req: Request, res: Response) => {
     throw ApiError.notFound('Client not found');
   }
 
+  // Fetch related annual report filings by document number so the admin
+  // can see data the client submitted (registered agent address, LLC members, etc.)
+  const relatedFilings = client.documentNumber
+    ? await prisma.annualReportFiling.findMany({
+        where: { documentNumber: client.documentNumber },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          referenceNumber: true,
+          documentNumber: true,
+          entityType: true,
+          businessName: true,
+          fein: true,
+          principalOffice: true,
+          mailingAddress: true,
+          registeredAgent: true,
+          officers: true,
+          llcMembers: true,
+          lpPartners: true,
+          status: true,
+          createdAt: true,
+        },
+      })
+    : [];
+
   res.json({
     success: true,
-    data: { client },
+    data: { client: { ...client, relatedFilings } },
   });
 };
 

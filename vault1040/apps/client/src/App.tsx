@@ -21,6 +21,7 @@ import { AdminClientsPage } from './pages/Admin/AdminClientsPage';
 import { AdminClientDetailPage } from './pages/Admin/AdminClientDetailPage';
 import { AdminFilingsPage } from './pages/Admin/AdminFilingsPage';
 import { AdminFilingDetailPage } from './pages/Admin/AdminFilingDetailPage';
+import { AdminAppointmentsPage } from './pages/Admin/AdminAppointmentsPage';
 
 function MainLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -48,6 +49,7 @@ function AppRoutes() {
           }
         >
           <Route index element={<AdminDashboardPage />} />
+          <Route path="appointments" element={<AdminAppointmentsPage />} />
           <Route path="clients" element={<AdminClientsPage />} />
           <Route path="clients/:id" element={<AdminClientDetailPage />} />
           <Route path="filings" element={<AdminFilingsPage />} />
@@ -86,7 +88,7 @@ function AppRoutes() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AppRoutes />
     </BrowserRouter>
   );

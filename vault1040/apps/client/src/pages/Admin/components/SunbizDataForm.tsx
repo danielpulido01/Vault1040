@@ -38,9 +38,9 @@ interface SunbizDataFormProps {
     entityType: string;
     businessName: string;
     fein: string;
-    principalOffice: Record<string, string>;
-    mailingAddress: Record<string, string>;
-    registeredAgent: { name?: string; address?: Record<string, string> };
+    principalOffice: { street?: string; city?: string; state?: string; zipCode?: string };
+    mailingAddress: { street?: string; city?: string; state?: string; zipCode?: string };
+    registeredAgent: { name?: string; address?: { street?: string; city?: string; zipCode?: string } };
     officers: unknown[];
     llcMembers: unknown[];
     lpPartners: unknown[];

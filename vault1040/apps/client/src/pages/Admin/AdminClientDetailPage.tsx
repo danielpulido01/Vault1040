@@ -18,6 +18,36 @@ import { Input } from '@/components/ui/Input';
 import api from '@/lib/api';
 import { SunbizDataForm } from './components/SunbizDataForm';
 
+interface JsonAddress {
+  street?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
+}
+
+interface JsonRegisteredAgent {
+  name?: string;
+  address?: JsonAddress;
+}
+
+interface RelatedFiling {
+  id: string;
+  referenceNumber: string;
+  documentNumber: string;
+  entityType: string;
+  businessName: string;
+  fein: string;
+  principalOffice: JsonAddress;
+  mailingAddress: JsonAddress;
+  registeredAgent: JsonRegisteredAgent;
+  officers: unknown[];
+  llcMembers: unknown[];
+  lpPartners: unknown[];
+  status: string;
+  createdAt: string;
+}
+
 interface Client {
   id: string;
   companyName: string;
@@ -29,6 +59,7 @@ interface Client {
   createdAt: string;
   sunbizData: SunbizData[];
   prefillTokens: PrefillToken[];
+  relatedFilings: RelatedFiling[];
 }
 
 interface SunbizData {
@@ -38,9 +69,9 @@ interface SunbizData {
   entityType: string;
   businessName: string;
   fein: string;
-  principalOffice: Record<string, string>;
-  mailingAddress: Record<string, string>;
-  registeredAgent: Record<string, unknown>;
+  principalOffice: JsonAddress;
+  mailingAddress: JsonAddress;
+  registeredAgent: JsonRegisteredAgent;
   officers: unknown[];
   llcMembers: unknown[];
   lpPartners: unknown[];
@@ -340,22 +371,46 @@ export function AdminClientDetailPage() {
                 </Button>
               </div>
 
-              {showSunbizForm && (
-                <div className="mb-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
-                  <SunbizDataForm
-                    clientId={id!}
-                    reportYear={editingYear || currentYear}
-                    existingData={
-                      client?.sunbizData.find((s) => s.reportYear === editingYear) || null
+              {showSunbizForm && (() => {
+                const year = editingYear || currentYear;
+                const sunbiz = client?.sunbizData.find((s) => s.reportYear === year);
+                // Use the most recent related filing to fill in any missing fields
+                const filing = client?.relatedFilings?.[0];
+                const mergedData = sunbiz
+                  ? {
+                      ...sunbiz,
+                      registeredAgent: {
+                        name: sunbiz.registeredAgent?.name || filing?.registeredAgent?.name || '',
+                        address: sunbiz.registeredAgent?.address?.street
+                          ? sunbiz.registeredAgent.address
+                          : filing?.registeredAgent?.address || { street: '', city: '', zipCode: '' },
+                      },
+                      llcMembers:
+                        (sunbiz.llcMembers as unknown[]).length > 0
+                          ? sunbiz.llcMembers
+                          : (filing?.llcMembers as unknown[]) || [],
+                      officers:
+                        (sunbiz.officers as unknown[]).length > 0
+                          ? sunbiz.officers
+                          : (filing?.officers as unknown[]) || [],
                     }
-                    onSave={handleSunbizSaved}
-                    onCancel={() => {
-                      setShowSunbizForm(false);
-                      setEditingYear(null);
-                    }}
-                  />
-                </div>
-              )}
+                  : null;
+                return (
+                  <div className="mb-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
+                    <SunbizDataForm
+                      key={year}
+                      clientId={id!}
+                      reportYear={year}
+                      existingData={mergedData}
+                      onSave={handleSunbizSaved}
+                      onCancel={() => {
+                        setShowSunbizForm(false);
+                        setEditingYear(null);
+                      }}
+                    />
+                  </div>
+                );
+              })()}
 
               {client?.sunbizData && client.sunbizData.length > 0 ? (
                 <div className="divide-y">
