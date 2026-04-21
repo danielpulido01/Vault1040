@@ -13,6 +13,7 @@ import {
   XCircle,
   FileText,
   Save,
+  Send,
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -92,6 +93,7 @@ const STATUS_OPTIONS = [
 ];
 
 const STATUS_BADGES: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
+  LINK_SENT: { bg: 'bg-orange-100', text: 'text-orange-800', icon: <Send className="h-4 w-4" /> },
   PENDING: { bg: 'bg-yellow-100', text: 'text-yellow-800', icon: <Clock className="h-4 w-4" /> },
   PAYMENT_RECEIVED: { bg: 'bg-blue-100', text: 'text-blue-800', icon: <CreditCard className="h-4 w-4" /> },
   IN_PROGRESS: { bg: 'bg-purple-100', text: 'text-purple-800', icon: <FileText className="h-4 w-4" /> },

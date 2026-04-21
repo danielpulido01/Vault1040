@@ -1,10 +1,32 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
+import { Decimal } from '@prisma/client/runtime/library';
 import { prisma } from '../../../lib/prisma.js';
 import { ApiError } from '../../../utils/ApiError.js';
 import { config } from '../../../config/index.js';
 import { sendPrefillInvitationEmail } from '../../../lib/email.js';
 import { sunbizUrl } from '../../../lib/sunbiz.js';
+
+const STATE_FEES: Record<string, number> = {
+  'profit-corp': 150.0,
+  'non-profit-corp': 61.25,
+  'llc': 138.75,
+  'lp': 500.0,
+  'lllp': 500.0,
+};
+const SERVICE_FEE = 50.0;
+const LATE_FEE = 400.0;
+
+function isAfterMay1(): boolean {
+  const now = new Date();
+  return now > new Date(now.getFullYear(), 4, 1);
+}
+
+function generateReferenceNumber(): string {
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `AR-${timestamp}-${random}`;
+}
 
 // ============================================
 // SUNBIZ LOOKUP
@@ -340,13 +362,57 @@ export const generateToken = async (req: Request, res: Response) => {
   // Token expires in 30 days
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
-  const prefillToken = await prisma.prefillToken.create({
+  const sunbizData = client.sunbizData[0];
+
+  // Generate a unique reference number for the draft filing
+  let referenceNumber = generateReferenceNumber();
+  let attempts = 0;
+  while (attempts < 5) {
+    const existing = await prisma.annualReportFiling.findUnique({ where: { referenceNumber } });
+    if (!existing) break;
+    referenceNumber = generateReferenceNumber();
+    attempts++;
+  }
+
+  const stateFee = STATE_FEES[sunbizData.entityType] || 0;
+  const lateFee = isAfterMay1() && sunbizData.entityType !== 'non-profit-corp' ? LATE_FEE : 0;
+  const totalFee = stateFee + SERVICE_FEE + lateFee;
+
+  const [prefillToken] = await prisma.$transaction([
+    prisma.prefillToken.create({
+      data: {
+        token,
+        clientId: id,
+        reportYear: parseInt(reportYear, 10),
+        expiresAt,
+        createdBy: req.user!.id,
+      },
+    }),
+  ]);
+
+  // Create a draft filing linked to this token so it appears in the admin filings list
+  await prisma.annualReportFiling.create({
     data: {
-      token,
-      clientId: id,
-      reportYear: parseInt(reportYear, 10),
-      expiresAt,
-      createdBy: req.user!.id,
+      referenceNumber,
+      contactEmail: client.contactEmail,
+      contactPhone: client.contactPhone ?? null,
+      documentNumber: sunbizData.documentNumber,
+      entityType: sunbizData.entityType,
+      businessName: sunbizData.businessName,
+      fein: sunbizData.fein,
+      principalOffice: sunbizData.principalOffice,
+      mailingAddress: sunbizData.mailingAddress,
+      registeredAgent: sunbizData.registeredAgent,
+      officers: sunbizData.officers ?? [],
+      llcMembers: sunbizData.llcMembers ?? [],
+      lpPartners: sunbizData.lpPartners ?? [],
+      stateFee: new Decimal(stateFee),
+      serviceFee: new Decimal(SERVICE_FEE),
+      lateFee: new Decimal(lateFee),
+      totalFee: new Decimal(totalFee),
+      status: 'LINK_SENT',
+      paymentStatus: 'PENDING',
+      prefillTokenId: prefillToken.id,
     },
   });
 

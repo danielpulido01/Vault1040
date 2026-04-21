@@ -109,63 +109,77 @@ export const submitFiling = async (req: Request, res: Response) => {
   const lateFee = isLate && entityType !== 'non-profit-corp' ? LATE_FEE : 0;
   const totalFee = stateFee + SERVICE_FEE + lateFee;
 
-  // Generate unique reference number
-  let referenceNumber = generateReferenceNumber();
+  const filingData = {
+    userId: req.user?.id || null,
+    contactEmail,
+    contactPhone,
+    documentNumber,
+    entityType,
+    businessName,
+    fein,
+    principalOffice,
+    mailingAddress,
+    registeredAgent,
+    officers: officers || [],
+    llcMembers: llcMembers || [],
+    lpPartners: lpPartners || [],
+    stateFee: new Decimal(stateFee),
+    serviceFee: new Decimal(SERVICE_FEE),
+    lateFee: new Decimal(lateFee),
+    totalFee: new Decimal(totalFee),
+    stripePaymentIntentId: paymentSource === 'stripe' ? paymentIntentId : null,
+    paymentStatus: paymentVerified ? 'SUCCEEDED' as const : 'PENDING' as const,
+    status: paymentVerified ? 'PAYMENT_RECEIVED' as const : 'PENDING' as const,
+    paidAt: paymentVerified ? new Date() : null,
+    paymentMethod,
+    paymentLast4,
+    paymentSource,
+    externalPaymentMethod,
+    ipAddress: req.ip,
+    userAgent: req.get('User-Agent'),
+  };
 
-  // Ensure uniqueness (retry if collision)
-  let attempts = 0;
-  while (attempts < 5) {
-    const existing = await prisma.annualReportFiling.findUnique({
-      where: { referenceNumber },
+  const selectFields = {
+    id: true,
+    referenceNumber: true,
+    totalFee: true,
+    status: true,
+    paymentStatus: true,
+    createdAt: true,
+  };
+
+  // If a token was provided, check for a pre-created draft filing to update
+  let filing;
+  if (prefillTokenId) {
+    const draftFiling = await prisma.annualReportFiling.findUnique({
+      where: { prefillTokenId },
     });
-    if (!existing) break;
-    referenceNumber = generateReferenceNumber();
-    attempts++;
+
+    if (draftFiling) {
+      filing = await prisma.annualReportFiling.update({
+        where: { id: draftFiling.id },
+        data: filingData,
+        select: selectFields,
+      });
+    }
   }
 
-  const filing = await prisma.annualReportFiling.create({
-    data: {
-      referenceNumber,
-      userId: req.user?.id || null,
-      contactEmail,
-      contactPhone,
-      documentNumber,
-      entityType,
-      businessName,
-      fein,
-      principalOffice,
-      mailingAddress,
-      registeredAgent,
-      officers: officers || [],
-      llcMembers: llcMembers || [],
-      lpPartners: lpPartners || [],
-      stateFee: new Decimal(stateFee),
-      serviceFee: new Decimal(SERVICE_FEE),
-      lateFee: new Decimal(lateFee),
-      totalFee: new Decimal(totalFee),
-      // Payment fields
-      stripePaymentIntentId: paymentSource === 'stripe' ? paymentIntentId : null,
-      paymentStatus: paymentVerified ? 'SUCCEEDED' : 'PENDING',
-      status: paymentVerified ? 'PAYMENT_RECEIVED' : 'PENDING',
-      paidAt: paymentVerified ? new Date() : null,
-      paymentMethod,
-      paymentLast4,
-      // Payment source tracking
-      paymentSource,
-      externalPaymentMethod,
-      // Metadata
-      ipAddress: req.ip,
-      userAgent: req.get('User-Agent'),
-    },
-    select: {
-      id: true,
-      referenceNumber: true,
-      totalFee: true,
-      status: true,
-      paymentStatus: true,
-      createdAt: true,
-    },
-  });
+  // No existing draft — create a new filing (direct submissions without a token)
+  if (!filing) {
+    let referenceNumber = generateReferenceNumber();
+    let attempts = 0;
+    while (attempts < 5) {
+      const existing = await prisma.annualReportFiling.findUnique({ where: { referenceNumber } });
+      if (!existing) break;
+      referenceNumber = generateReferenceNumber();
+      attempts++;
+    }
+
+    filing = await prisma.annualReportFiling.create({
+      data: { referenceNumber, ...filingData },
+      select: selectFields,
+    });
+  }
 
   // Mark prefill token as submitted if used
   if (prefillTokenId) {

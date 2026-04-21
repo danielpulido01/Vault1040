@@ -11,6 +11,7 @@ import {
   AlertCircle,
   FileText,
   DollarSign,
+  Send,
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -43,6 +44,7 @@ interface Pagination {
 
 interface Stats {
   totalFilings: number;
+  linkSentFilings: number;
   pendingFilings: number;
   paymentReceivedFilings: number;
   inProgressFilings: number;
@@ -51,6 +53,7 @@ interface Stats {
 }
 
 const STATUS_BADGES: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
+  LINK_SENT: { bg: 'bg-orange-100', text: 'text-orange-800', icon: <Send className="h-3 w-3" /> },
   PENDING: { bg: 'bg-yellow-100', text: 'text-yellow-800', icon: <Clock className="h-3 w-3" /> },
   PAYMENT_RECEIVED: { bg: 'bg-blue-100', text: 'text-blue-800', icon: <CreditCard className="h-3 w-3" /> },
   IN_PROGRESS: { bg: 'bg-purple-100', text: 'text-purple-800', icon: <FileText className="h-3 w-3" /> },
@@ -149,7 +152,16 @@ export function AdminFilingsPage() {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <Card variant="bordered" className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
+              <Send className="h-6 w-6 text-orange-600" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Link Sent</p>
+              <p className="text-2xl font-bold text-navy">{stats.linkSentFilings}</p>
+            </div>
+          </Card>
           <Card variant="bordered" className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
               <CreditCard className="h-6 w-6 text-blue-600" />
@@ -209,6 +221,7 @@ export function AdminFilingsPage() {
             className="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="">All Statuses</option>
+            <option value="LINK_SENT">Link Sent</option>
             <option value="PENDING">Pending</option>
             <option value="PAYMENT_RECEIVED">Payment Received</option>
             <option value="IN_PROGRESS">In Progress</option>

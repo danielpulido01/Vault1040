@@ -72,6 +72,7 @@ export const getFilings = async (req: Request, res: Response) => {
 export const getFilingStats = async (_req: Request, res: Response) => {
   const [
     totalFilings,
+    linkSentFilings,
     pendingFilings,
     paymentReceivedFilings,
     inProgressFilings,
@@ -79,6 +80,7 @@ export const getFilingStats = async (_req: Request, res: Response) => {
     totalRevenue,
   ] = await Promise.all([
     prisma.annualReportFiling.count(),
+    prisma.annualReportFiling.count({ where: { status: 'LINK_SENT' } }),
     prisma.annualReportFiling.count({ where: { status: 'PENDING' } }),
     prisma.annualReportFiling.count({ where: { status: 'PAYMENT_RECEIVED' } }),
     prisma.annualReportFiling.count({ where: { status: 'IN_PROGRESS' } }),
@@ -93,6 +95,7 @@ export const getFilingStats = async (_req: Request, res: Response) => {
     success: true,
     data: {
       totalFilings,
+      linkSentFilings,
       pendingFilings,
       paymentReceivedFilings,
       inProgressFilings,

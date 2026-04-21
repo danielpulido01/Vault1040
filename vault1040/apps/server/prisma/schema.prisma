@@ -262,6 +262,9 @@ model AnnualReportFiling {
   processedAt       DateTime?           @map("processed_at")
   processedBy       String?             @map("processed_by")
 
+  // Prefill token linkage (set when filing is created at token generation)
+  prefillTokenId    String?             @unique @map("prefill_token_id")
+
   // Metadata
   ipAddress         String?             @map("ip_address")
   userAgent         String?             @map("user_agent")
@@ -270,6 +273,7 @@ model AnnualReportFiling {
   updatedAt         DateTime            @updatedAt @map("updated_at")
 
   user              User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
+  prefillToken      PrefillToken?       @relation(fields: [prefillTokenId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([status])
@@ -279,6 +283,7 @@ model AnnualReportFiling {
 }
 
 enum FilingStatus {
+  LINK_SENT
   PENDING
   PAYMENT_RECEIVED
   IN_PROGRESS
@@ -394,6 +399,7 @@ model PrefillToken {
   createdBy     String    @map("created_by")
 
   client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  filing        AnnualReportFiling?
 
   @@index([token])
   @@index([clientId])
