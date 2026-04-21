@@ -4,6 +4,21 @@ import { prisma } from '../../../lib/prisma.js';
 import { ApiError } from '../../../utils/ApiError.js';
 import { config } from '../../../config/index.js';
 import { sendPrefillInvitationEmail } from '../../../lib/email.js';
+import { sunbizUrl } from '../../../lib/sunbiz.js';
+
+// ============================================
+// SUNBIZ LOOKUP
+// ============================================
+
+export const sunbizLookup = async (req: Request, res: Response) => {
+  const documentNumber = (req.query.documentNumber as string)?.trim();
+
+  if (!documentNumber) {
+    throw ApiError.badRequest('documentNumber query param is required');
+  }
+
+  res.json({ success: true, data: { url: sunbizUrl(documentNumber) } });
+};
 
 // ============================================
 // CLIENT CRUD

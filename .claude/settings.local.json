@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(DATABASE_URL=\"postgresql://vault1040_user:ShjzFT264MSapcUdZv9Vecdx8JNkPbT8@dpg-d6jgh9vgi27c73d4k1r0-a.oregon-postgres.render.com/vault1040\" pnpm run db:seed:*)"
+      "Bash(DATABASE_URL=\"postgresql://vault1040_user:ShjzFT264MSapcUdZv9Vecdx8JNkPbT8@dpg-d6jgh9vgi27c73d4k1r0-a.oregon-postgres.render.com/vault1040\" pnpm run db:seed:*)",
+      "WebFetch(domain:search.sunbiz.org)",
+      "Bash(pnpm add *)"
     ]
   }
 }

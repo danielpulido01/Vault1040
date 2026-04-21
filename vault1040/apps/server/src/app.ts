@@ -28,7 +28,18 @@ const limiter = rateLimit({
 
 // Middleware
 app.use(cors({
-  origin: config.clientUrl,
+  origin: (origin, callback) => {
+    const allowed = [
+      config.clientUrl,
+      'http://localhost:5173',
+      'http://localhost:5174',
+    ];
+    if (!origin || allowed.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: origin ${origin} not allowed`));
+    }
+  },
   credentials: true,
 }));
 app.use(cookieParser());

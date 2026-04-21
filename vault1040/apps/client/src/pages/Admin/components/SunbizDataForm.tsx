@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import api from '@/lib/api';
@@ -158,7 +158,7 @@ export function SunbizDataForm({
     setLlcMembers(llcMembers.map((m) => (m.id === id ? { ...m, ...updates } : m)));
   };
 
-  const handleSave = async () => {
+const handleSave = async () => {
     setSaving(true);
     try {
       await api.post(`/admin/clients/${clientId}/sunbiz`, {
@@ -195,13 +195,34 @@ export function SunbizDataForm({
       <div>
         <h4 className="mb-3 font-medium text-gray-700">Entity Information</h4>
         <div className="grid gap-4 md:grid-cols-2">
-          <Input
-            label="Document Number"
-            value={documentNumber}
-            onChange={(e) => setDocumentNumber(e.target.value)}
-            placeholder="P160000818650"
-            required
-          />
+          <div>
+            <Input
+              label="Document Number"
+              value={documentNumber}
+              onChange={(e) => setDocumentNumber(e.target.value)}
+              placeholder="P160000818650"
+              required
+            />
+            {documentNumber.trim() && (
+              <div className="mt-2 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigator.clipboard.writeText(documentNumber.trim())}
+                  className="flex-1 rounded-lg border border-gray-300 bg-gray-50 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100"
+                >
+                  Copy Number
+                </button>
+                <a
+                  href="https://search.sunbiz.org/Inquiry/CorporationSearch/ByDocumentNumber"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-primary bg-primary/5 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/10"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" /> Sunbiz Search
+                </a>
+              </div>
+            )}
+          </div>
           <div>
             <label className="label">Entity Type *</label>
             <select

@@ -4,6 +4,9 @@ import * as clientsController from './clients.controller.js';
 
 const router = Router();
 
+// Sunbiz lookup (must be before /:id to avoid route collision)
+router.get('/sunbiz-lookup', asyncHandler(clientsController.sunbizLookup));
+
 // Client CRUD
 router.get('/', asyncHandler(clientsController.getClients));
 router.get('/:id', asyncHandler(clientsController.getClient));
