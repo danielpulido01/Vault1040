@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -17,6 +20,17 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import api from '@/lib/api';
 import { SunbizDataForm } from './components/SunbizDataForm';
+
+const clientSchema = z.object({
+  companyName: z.string().min(1, 'Company name is required'),
+  contactEmail: z.string().email('Invalid email address'),
+  contactPhone: z.string(),
+  documentNumber: z.string(),
+  fein: z.string(),
+  notes: z.string(),
+});
+
+type ClientFormData = z.infer<typeof clientSchema>;
 
 interface JsonAddress {
   street?: string;
@@ -120,15 +134,29 @@ export function AdminClientDetailPage() {
   const [paymentNotes, setPaymentNotes] = useState('');
   const [savingPayment, setSavingPayment] = useState(false);
 
-  // Form state for client info
-  const [formData, setFormData] = useState({
-    companyName: '',
-    contactEmail: '',
-    contactPhone: '',
-    documentNumber: '',
-    fein: '',
-    notes: '',
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<ClientFormData>({
+    resolver: zodResolver(clientSchema),
+    defaultValues: {
+      companyName: '',
+      contactEmail: '',
+      contactPhone: '',
+      documentNumber: '',
+      fein: '',
+      notes: '',
+    },
   });
+
+  const [watchedFein, watchedDocumentNumber, watchedCompanyName] = watch([
+    'fein',
+    'documentNumber',
+    'companyName',
+  ]);
 
   // Sunbiz data form visibility
   const [showSunbizForm, setShowSunbizForm] = useState(false);
@@ -145,7 +173,7 @@ export function AdminClientDetailPage() {
       const response = await api.get(`/admin/clients/${id}`);
       const clientData = response.data.data.client;
       setClient(clientData);
-      setFormData({
+      reset({
         companyName: clientData.companyName,
         contactEmail: clientData.contactEmail,
         contactPhone: clientData.contactPhone || '',
@@ -160,14 +188,14 @@ export function AdminClientDetailPage() {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (data: ClientFormData) => {
     setSaving(true);
     try {
       if (isNew) {
-        const response = await api.post('/admin/clients', formData);
+        const response = await api.post('/admin/clients', data);
         navigate(`/admin/clients/${response.data.data.client.id}`);
       } else {
-        await api.put(`/admin/clients/${id}`, formData);
+        await api.put(`/admin/clients/${id}`, data);
         fetchClient();
       }
     } catch (error) {
@@ -289,7 +317,7 @@ export function AdminClientDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <h1 className="text-2xl font-bold text-navy">
-            {isNew ? 'New Client' : formData.companyName}
+            {isNew ? 'New Client' : watchedCompanyName}
           </h1>
         </div>
         <div className="flex gap-2">
@@ -299,7 +327,7 @@ export function AdminClientDetailPage() {
               Delete
             </Button>
           )}
-          <Button onClick={handleSave} disabled={saving}>
+          <Button onClick={handleSubmit(handleSave)} disabled={saving}>
             <Save className="mr-2 h-4 w-4" />
             {saving ? 'Saving...' : 'Save'}
           </Button>
@@ -315,42 +343,35 @@ export function AdminClientDetailPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <Input
                 label="Company Name"
-                value={formData.companyName}
-                onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                {...register('companyName')}
+                error={errors.companyName?.message}
                 required
               />
               <Input
                 label="Contact Email"
                 type="email"
-                value={formData.contactEmail}
-                onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
+                {...register('contactEmail')}
+                error={errors.contactEmail?.message}
                 required
               />
               <Input
                 label="Contact Phone"
-                value={formData.contactPhone}
-                onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
+                {...register('contactPhone')}
               />
               <Input
                 label="FL Document Number"
-                value={formData.documentNumber}
-                onChange={(e) => setFormData({ ...formData, documentNumber: e.target.value })}
+                {...register('documentNumber')}
                 placeholder="P160000818650"
               />
               <Input
                 label="FEIN"
-                value={formData.fein}
-                onChange={(e) => setFormData({ ...formData, fein: e.target.value })}
+                {...register('fein')}
                 placeholder="12-3456789"
               />
             </div>
             <div className="mt-4">
               <label className="label">Notes</label>
-              <textarea
-                className="input min-h-[100px]"
-                value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              />
+              <textarea className="input min-h-[100px]" {...register('notes')} />
             </div>
           </Card>
 
@@ -402,8 +423,8 @@ export function AdminClientDetailPage() {
                       clientId={id!}
                       reportYear={year}
                       existingData={mergedData}
-                      defaultFein={formData.fein || undefined}
-                      defaultDocumentNumber={formData.documentNumber || undefined}
+                      defaultFein={watchedFein || undefined}
+                      defaultDocumentNumber={watchedDocumentNumber || undefined}
                       onSave={handleSunbizSaved}
                       onCancel={() => {
                         setShowSunbizForm(false);

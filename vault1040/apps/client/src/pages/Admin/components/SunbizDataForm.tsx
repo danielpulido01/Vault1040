@@ -1,34 +1,54 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Plus, Trash2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import api from '@/lib/api';
 
-interface Officer {
-  id: string;
-  title: string;
-  name: string;
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-}
+const addressSchema = z.object({
+  street: z.string().min(1, 'Required'),
+  city: z.string().min(1, 'Required'),
+  state: z.string().min(1, 'Required'),
+  zipCode: z.string().min(1, 'Required'),
+  country: z.string().default('United States'),
+});
 
-interface LLCMember {
-  id: string;
-  type: string;
-  name: string;
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-}
+const sunbizSchema = z.object({
+  documentNumber: z.string().min(1, 'Required'),
+  entityType: z.string().min(1, 'Required'),
+  businessName: z.string().min(1, 'Required'),
+  fein: z.string().min(1, 'Required'),
+  principalOffice: addressSchema,
+  mailingAddress: addressSchema,
+  registeredAgent: z.object({
+    name: z.string().min(1, 'Required'),
+    address: z.object({
+      street: z.string().min(1, 'Required'),
+      city: z.string().min(1, 'Required'),
+      zipCode: z.string().min(1, 'Required'),
+    }),
+  }),
+  officers: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string(),
+      name: z.string().min(1, 'Name is required'),
+      address: addressSchema,
+    })
+  ),
+  llcMembers: z.array(
+    z.object({
+      id: z.string(),
+      type: z.string(),
+      name: z.string().min(1, 'Name is required'),
+      address: addressSchema,
+    })
+  ),
+});
+
+type SunbizFormData = z.infer<typeof sunbizSchema>;
 
 interface SunbizDataFormProps {
   clientId: string;
@@ -77,112 +97,79 @@ export function SunbizDataForm({
   onCancel,
 }: SunbizDataFormProps) {
   const [saving, setSaving] = useState(false);
-
-  // Entity Info
-  const [documentNumber, setDocumentNumber] = useState(existingData?.documentNumber || defaultDocumentNumber || '');
-  const [entityType, setEntityType] = useState(existingData?.entityType || 'llc');
-  const [businessName, setBusinessName] = useState(existingData?.businessName || '');
-  const [fein, setFein] = useState(existingData?.fein || defaultFein || '');
-
-  // Principal Office
-  const [principalOffice, setPrincipalOffice] = useState({
-    street: existingData?.principalOffice?.street || '',
-    city: existingData?.principalOffice?.city || '',
-    state: existingData?.principalOffice?.state || '',
-    zipCode: existingData?.principalOffice?.zipCode || '',
-    country: 'United States',
-  });
-
-  // Mailing Address
   const [sameAsPrincipal, setSameAsPrincipal] = useState(false);
-  const [mailingAddress, setMailingAddress] = useState({
-    street: existingData?.mailingAddress?.street || '',
-    city: existingData?.mailingAddress?.city || '',
-    state: existingData?.mailingAddress?.state || '',
-    zipCode: existingData?.mailingAddress?.zipCode || '',
-    country: 'United States',
-  });
 
-  const updatePrincipalOffice = (updates: Partial<typeof principalOffice>) => {
-    const next = { ...principalOffice, ...updates };
-    setPrincipalOffice(next);
-    if (sameAsPrincipal) setMailingAddress(next);
-  };
-
-  // Registered Agent
-  const [registeredAgent, setRegisteredAgent] = useState({
-    name: existingData?.registeredAgent?.name || '',
-    address: {
-      street: existingData?.registeredAgent?.address?.street || '',
-      city: existingData?.registeredAgent?.address?.city || '',
-      zipCode: existingData?.registeredAgent?.address?.zipCode || '',
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    control,
+    formState: { errors },
+  } = useForm<SunbizFormData>({
+    resolver: zodResolver(sunbizSchema),
+    defaultValues: {
+      documentNumber: existingData?.documentNumber || defaultDocumentNumber || '',
+      entityType: existingData?.entityType || 'llc',
+      businessName: existingData?.businessName || '',
+      fein: existingData?.fein || defaultFein || '',
+      principalOffice: {
+        street: existingData?.principalOffice?.street || '',
+        city: existingData?.principalOffice?.city || '',
+        state: existingData?.principalOffice?.state || '',
+        zipCode: existingData?.principalOffice?.zipCode || '',
+        country: 'United States',
+      },
+      mailingAddress: {
+        street: existingData?.mailingAddress?.street || '',
+        city: existingData?.mailingAddress?.city || '',
+        state: existingData?.mailingAddress?.state || '',
+        zipCode: existingData?.mailingAddress?.zipCode || '',
+        country: 'United States',
+      },
+      registeredAgent: {
+        name: existingData?.registeredAgent?.name || '',
+        address: {
+          street: existingData?.registeredAgent?.address?.street || '',
+          city: existingData?.registeredAgent?.address?.city || '',
+          zipCode: existingData?.registeredAgent?.address?.zipCode || '',
+        },
+      },
+      officers: (existingData?.officers as SunbizFormData['officers']) || [],
+      llcMembers: (existingData?.llcMembers as SunbizFormData['llcMembers']) || [],
     },
   });
 
-  // Officers (for corporations)
-  const [officers, setOfficers] = useState<Officer[]>(
-    (existingData?.officers as Officer[]) || []
-  );
+  const { fields: officerFields, append: appendOfficer, remove: removeOfficer } = useFieldArray({
+    control,
+    name: 'officers',
+  });
 
-  // LLC Members
-  const [llcMembers, setLlcMembers] = useState<LLCMember[]>(
-    (existingData?.llcMembers as LLCMember[]) || []
-  );
+  const { fields: memberFields, append: appendMember, remove: removeMember } = useFieldArray({
+    control,
+    name: 'llcMembers',
+  });
 
-  const addOfficer = () => {
-    setOfficers([
-      ...officers,
-      {
-        id: `officer-${Date.now()}`,
-        title: 'president',
-        name: '',
-        address: { street: '', city: '', state: '', zipCode: '', country: 'United States' },
-      },
-    ]);
-  };
+  const principalOffice = watch('principalOffice');
+  const entityType = watch('entityType');
+  const documentNumber = watch('documentNumber');
+  const isCorporation = entityType?.includes('corp');
+  const isLLC = entityType === 'llc';
 
-  const removeOfficer = (id: string) => {
-    setOfficers(officers.filter((o) => o.id !== id));
-  };
+  useEffect(() => {
+    if (sameAsPrincipal) {
+      setValue('mailingAddress', { ...principalOffice });
+    }
+  }, [sameAsPrincipal, principalOffice, setValue]);
 
-  const updateOfficer = (id: string, updates: Partial<Officer>) => {
-    setOfficers(officers.map((o) => (o.id === id ? { ...o, ...updates } : o)));
-  };
-
-  const addMember = () => {
-    setLlcMembers([
-      ...llcMembers,
-      {
-        id: `member-${Date.now()}`,
-        type: 'member',
-        name: '',
-        address: { street: '', city: '', state: '', zipCode: '', country: 'United States' },
-      },
-    ]);
-  };
-
-  const removeMember = (id: string) => {
-    setLlcMembers(llcMembers.filter((m) => m.id !== id));
-  };
-
-  const updateMember = (id: string, updates: Partial<LLCMember>) => {
-    setLlcMembers(llcMembers.map((m) => (m.id === id ? { ...m, ...updates } : m)));
-  };
-
-const handleSave = async () => {
+  const onSubmit = async (data: SunbizFormData) => {
     setSaving(true);
     try {
       await api.post(`/admin/clients/${clientId}/sunbiz`, {
         reportYear,
-        documentNumber,
-        entityType,
-        businessName,
-        fein,
-        principalOffice,
-        mailingAddress,
-        registeredAgent,
-        officers: entityType.includes('corp') ? officers : [],
-        llcMembers: entityType === 'llc' ? llcMembers : [],
+        ...data,
+        officers: isCorporation ? data.officers : [],
+        llcMembers: isLLC ? data.llcMembers : [],
         lpPartners: [],
       });
       onSave();
@@ -192,9 +179,6 @@ const handleSave = async () => {
       setSaving(false);
     }
   };
-
-  const isCorporation = entityType.includes('corp');
-  const isLLC = entityType === 'llc';
 
   return (
     <div className="space-y-6">
@@ -209,12 +193,12 @@ const handleSave = async () => {
           <div>
             <Input
               label="Document Number"
-              value={documentNumber}
-              onChange={(e) => setDocumentNumber(e.target.value)}
+              {...register('documentNumber')}
+              error={errors.documentNumber?.message}
               placeholder="P160000818650"
               required
             />
-            {documentNumber.trim() && (
+            {documentNumber?.trim() && (
               <div className="mt-2 flex gap-2">
                 <button
                   type="button"
@@ -236,28 +220,27 @@ const handleSave = async () => {
           </div>
           <div>
             <label className="label">Entity Type *</label>
-            <select
-              className="input"
-              value={entityType}
-              onChange={(e) => setEntityType(e.target.value)}
-            >
+            <select className="input" {...register('entityType')}>
               {ENTITY_TYPES.map((type) => (
                 <option key={type.value} value={type.value}>
                   {type.label}
                 </option>
               ))}
             </select>
+            {errors.entityType && (
+              <p className="mt-1 text-sm text-red-500">{errors.entityType.message}</p>
+            )}
           </div>
           <Input
             label="Business Name"
-            value={businessName}
-            onChange={(e) => setBusinessName(e.target.value)}
+            {...register('businessName')}
+            error={errors.businessName?.message}
             required
           />
           <Input
             label="FEIN"
-            value={fein}
-            onChange={(e) => setFein(e.target.value)}
+            {...register('fein')}
+            error={errors.fein?.message}
             placeholder="12-3456789"
             required
           />
@@ -271,37 +254,34 @@ const handleSave = async () => {
           <div className="md:col-span-2">
             <Input
               label="Street"
-              value={principalOffice.street}
-              onChange={(e) => updatePrincipalOffice({ street: e.target.value })}
+              {...register('principalOffice.street')}
+              error={errors.principalOffice?.street?.message}
               required
             />
           </div>
           <Input
             label="City"
-            value={principalOffice.city}
-            onChange={(e) => updatePrincipalOffice({ city: e.target.value })}
+            {...register('principalOffice.city')}
+            error={errors.principalOffice?.city?.message}
             required
           />
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="label">State *</label>
-              <select
-                className="input"
-                value={principalOffice.state}
-                onChange={(e) => updatePrincipalOffice({ state: e.target.value })}
-              >
+              <select className="input" {...register('principalOffice.state')}>
                 <option value="">Select</option>
-                {US_STATES.map((state) => (
-                  <option key={state} value={state}>
-                    {state}
-                  </option>
+                {US_STATES.map((s) => (
+                  <option key={s} value={s}>{s}</option>
                 ))}
               </select>
+              {errors.principalOffice?.state && (
+                <p className="mt-1 text-sm text-red-500">{errors.principalOffice.state.message}</p>
+              )}
             </div>
             <Input
               label="ZIP"
-              value={principalOffice.zipCode}
-              onChange={(e) => updatePrincipalOffice({ zipCode: e.target.value })}
+              {...register('principalOffice.zipCode')}
+              error={errors.principalOffice?.zipCode?.message}
               required
             />
           </div>
@@ -318,7 +298,7 @@ const handleSave = async () => {
               checked={sameAsPrincipal}
               onChange={(e) => {
                 setSameAsPrincipal(e.target.checked);
-                if (e.target.checked) setMailingAddress({ ...principalOffice });
+                if (e.target.checked) setValue('mailingAddress', { ...principalOffice });
               }}
               className="h-4 w-4 rounded border-gray-300 accent-primary"
             />
@@ -329,16 +309,16 @@ const handleSave = async () => {
           <div className="md:col-span-2">
             <Input
               label="Street"
-              value={mailingAddress.street}
-              onChange={(e) => setMailingAddress({ ...mailingAddress, street: e.target.value })}
+              {...register('mailingAddress.street')}
+              error={errors.mailingAddress?.street?.message}
               disabled={sameAsPrincipal}
               required
             />
           </div>
           <Input
             label="City"
-            value={mailingAddress.city}
-            onChange={(e) => setMailingAddress({ ...mailingAddress, city: e.target.value })}
+            {...register('mailingAddress.city')}
+            error={errors.mailingAddress?.city?.message}
             disabled={sameAsPrincipal}
             required
           />
@@ -347,22 +327,22 @@ const handleSave = async () => {
               <label className="label">State *</label>
               <select
                 className="input"
-                value={mailingAddress.state}
-                onChange={(e) => setMailingAddress({ ...mailingAddress, state: e.target.value })}
+                {...register('mailingAddress.state')}
                 disabled={sameAsPrincipal}
               >
                 <option value="">Select</option>
-                {US_STATES.map((state) => (
-                  <option key={state} value={state}>
-                    {state}
-                  </option>
+                {US_STATES.map((s) => (
+                  <option key={s} value={s}>{s}</option>
                 ))}
               </select>
+              {errors.mailingAddress?.state && (
+                <p className="mt-1 text-sm text-red-500">{errors.mailingAddress.state.message}</p>
+              )}
             </div>
             <Input
               label="ZIP"
-              value={mailingAddress.zipCode}
-              onChange={(e) => setMailingAddress({ ...mailingAddress, zipCode: e.target.value })}
+              {...register('mailingAddress.zipCode')}
+              error={errors.mailingAddress?.zipCode?.message}
               disabled={sameAsPrincipal}
               required
             />
@@ -377,48 +357,31 @@ const handleSave = async () => {
           <div className="md:col-span-2">
             <Input
               label="Agent Name"
-              value={registeredAgent.name}
-              onChange={(e) =>
-                setRegisteredAgent({ ...registeredAgent, name: e.target.value })
-              }
+              {...register('registeredAgent.name')}
+              error={errors.registeredAgent?.name?.message}
               required
             />
           </div>
           <div className="md:col-span-2">
             <Input
               label="Street"
-              value={registeredAgent.address.street}
-              onChange={(e) =>
-                setRegisteredAgent({
-                  ...registeredAgent,
-                  address: { ...registeredAgent.address, street: e.target.value },
-                })
-              }
+              {...register('registeredAgent.address.street')}
+              error={errors.registeredAgent?.address?.street?.message}
               required
             />
           </div>
           <Input
             label="City"
-            value={registeredAgent.address.city}
-            onChange={(e) =>
-              setRegisteredAgent({
-                ...registeredAgent,
-                address: { ...registeredAgent.address, city: e.target.value },
-              })
-            }
+            {...register('registeredAgent.address.city')}
+            error={errors.registeredAgent?.address?.city?.message}
             required
           />
           <div className="grid grid-cols-2 gap-4">
             <Input label="State" value="FL" disabled />
             <Input
               label="ZIP"
-              value={registeredAgent.address.zipCode}
-              onChange={(e) =>
-                setRegisteredAgent({
-                  ...registeredAgent,
-                  address: { ...registeredAgent.address, zipCode: e.target.value },
-                })
-              }
+              {...register('registeredAgent.address.zipCode')}
+              error={errors.registeredAgent?.address?.zipCode?.message}
               required
             />
           </div>
@@ -430,23 +393,31 @@ const handleSave = async () => {
         <div>
           <div className="mb-3 flex items-center justify-between">
             <h4 className="font-medium text-gray-700">Officers</h4>
-            <Button type="button" variant="outline" size="sm" onClick={addOfficer}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                appendOfficer({
+                  id: `officer-${Date.now()}`,
+                  title: 'president',
+                  name: '',
+                  address: { street: '', city: '', state: '', zipCode: '', country: 'United States' },
+                })
+              }
+            >
               <Plus className="mr-1 h-4 w-4" />
               Add Officer
             </Button>
           </div>
-          {officers.length === 0 ? (
+          {officerFields.length === 0 ? (
             <p className="text-sm text-gray-500">No officers added yet</p>
           ) : (
             <div className="space-y-4">
-              {officers.map((officer) => (
-                <div key={officer.id} className="rounded-lg border bg-white p-4">
+              {officerFields.map((field, index) => (
+                <div key={field.id} className="rounded-lg border bg-white p-4">
                   <div className="mb-3 flex items-center justify-between">
-                    <select
-                      className="input w-auto"
-                      value={officer.title}
-                      onChange={(e) => updateOfficer(officer.id, { title: e.target.value })}
-                    >
+                    <select className="input w-auto" {...register(`officers.${index}.title`)}>
                       <option value="president">President</option>
                       <option value="vice-president">Vice President</option>
                       <option value="secretary">Secretary</option>
@@ -455,7 +426,7 @@ const handleSave = async () => {
                     </select>
                     <button
                       type="button"
-                      onClick={() => removeOfficer(officer.id)}
+                      onClick={() => removeOfficer(index)}
                       className="text-red-500 hover:text-red-700"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -464,53 +435,19 @@ const handleSave = async () => {
                   <div className="grid gap-3 md:grid-cols-2">
                     <Input
                       label="Name"
-                      value={officer.name}
-                      onChange={(e) => updateOfficer(officer.id, { name: e.target.value })}
+                      {...register(`officers.${index}.name`)}
+                      error={errors.officers?.[index]?.name?.message}
                     />
-                    <Input
-                      label="Street"
-                      value={officer.address.street}
-                      onChange={(e) =>
-                        updateOfficer(officer.id, {
-                          address: { ...officer.address, street: e.target.value },
-                        })
-                      }
-                    />
-                    <Input
-                      label="City"
-                      value={officer.address.city}
-                      onChange={(e) =>
-                        updateOfficer(officer.id, {
-                          address: { ...officer.address, city: e.target.value },
-                        })
-                      }
-                    />
+                    <Input label="Street" {...register(`officers.${index}.address.street`)} />
+                    <Input label="City" {...register(`officers.${index}.address.city`)} />
                     <div className="grid grid-cols-2 gap-2">
-                      <select
-                        className="input"
-                        value={officer.address.state}
-                        onChange={(e) =>
-                          updateOfficer(officer.id, {
-                            address: { ...officer.address, state: e.target.value },
-                          })
-                        }
-                      >
+                      <select className="input" {...register(`officers.${index}.address.state`)}>
                         <option value="">State</option>
-                        {US_STATES.map((state) => (
-                          <option key={state} value={state}>
-                            {state}
-                          </option>
+                        {US_STATES.map((s) => (
+                          <option key={s} value={s}>{s}</option>
                         ))}
                       </select>
-                      <Input
-                        placeholder="ZIP"
-                        value={officer.address.zipCode}
-                        onChange={(e) =>
-                          updateOfficer(officer.id, {
-                            address: { ...officer.address, zipCode: e.target.value },
-                          })
-                        }
-                      />
+                      <Input placeholder="ZIP" {...register(`officers.${index}.address.zipCode`)} />
                     </div>
                   </div>
                 </div>
@@ -525,29 +462,37 @@ const handleSave = async () => {
         <div>
           <div className="mb-3 flex items-center justify-between">
             <h4 className="font-medium text-gray-700">Members/Managers</h4>
-            <Button type="button" variant="outline" size="sm" onClick={addMember}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                appendMember({
+                  id: `member-${Date.now()}`,
+                  type: 'member',
+                  name: '',
+                  address: { street: '', city: '', state: '', zipCode: '', country: 'United States' },
+                })
+              }
+            >
               <Plus className="mr-1 h-4 w-4" />
               Add Member
             </Button>
           </div>
-          {llcMembers.length === 0 ? (
+          {memberFields.length === 0 ? (
             <p className="text-sm text-gray-500">No members added yet</p>
           ) : (
             <div className="space-y-4">
-              {llcMembers.map((member) => (
-                <div key={member.id} className="rounded-lg border bg-white p-4">
+              {memberFields.map((field, index) => (
+                <div key={field.id} className="rounded-lg border bg-white p-4">
                   <div className="mb-3 flex items-center justify-between">
-                    <select
-                      className="input w-auto"
-                      value={member.type}
-                      onChange={(e) => updateMember(member.id, { type: e.target.value })}
-                    >
+                    <select className="input w-auto" {...register(`llcMembers.${index}.type`)}>
                       <option value="member">Member</option>
                       <option value="manager">Manager</option>
                     </select>
                     <button
                       type="button"
-                      onClick={() => removeMember(member.id)}
+                      onClick={() => removeMember(index)}
                       className="text-red-500 hover:text-red-700"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -556,52 +501,21 @@ const handleSave = async () => {
                   <div className="grid gap-3 md:grid-cols-2">
                     <Input
                       label="Name"
-                      value={member.name}
-                      onChange={(e) => updateMember(member.id, { name: e.target.value })}
+                      {...register(`llcMembers.${index}.name`)}
+                      error={errors.llcMembers?.[index]?.name?.message}
                     />
-                    <Input
-                      label="Street"
-                      value={member.address.street}
-                      onChange={(e) =>
-                        updateMember(member.id, {
-                          address: { ...member.address, street: e.target.value },
-                        })
-                      }
-                    />
-                    <Input
-                      label="City"
-                      value={member.address.city}
-                      onChange={(e) =>
-                        updateMember(member.id, {
-                          address: { ...member.address, city: e.target.value },
-                        })
-                      }
-                    />
+                    <Input label="Street" {...register(`llcMembers.${index}.address.street`)} />
+                    <Input label="City" {...register(`llcMembers.${index}.address.city`)} />
                     <div className="grid grid-cols-2 gap-2">
-                      <select
-                        className="input"
-                        value={member.address.state}
-                        onChange={(e) =>
-                          updateMember(member.id, {
-                            address: { ...member.address, state: e.target.value },
-                          })
-                        }
-                      >
+                      <select className="input" {...register(`llcMembers.${index}.address.state`)}>
                         <option value="">State</option>
-                        {US_STATES.map((state) => (
-                          <option key={state} value={state}>
-                            {state}
-                          </option>
+                        {US_STATES.map((s) => (
+                          <option key={s} value={s}>{s}</option>
                         ))}
                       </select>
                       <Input
                         placeholder="ZIP"
-                        value={member.address.zipCode}
-                        onChange={(e) =>
-                          updateMember(member.id, {
-                            address: { ...member.address, zipCode: e.target.value },
-                          })
-                        }
+                        {...register(`llcMembers.${index}.address.zipCode`)}
                       />
                     </div>
                   </div>
@@ -617,7 +531,7 @@ const handleSave = async () => {
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button onClick={handleSave} disabled={saving}>
+        <Button onClick={handleSubmit(onSubmit)} disabled={saving}>
           {saving ? 'Saving...' : 'Save Sunbiz Data'}
         </Button>
       </div>
