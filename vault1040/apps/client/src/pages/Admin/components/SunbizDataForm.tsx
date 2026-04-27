@@ -45,6 +45,8 @@ interface SunbizDataFormProps {
     llcMembers: unknown[];
     lpPartners: unknown[];
   } | null;
+  defaultFein?: string;
+  defaultDocumentNumber?: string;
   onSave: () => void;
   onCancel: () => void;
 }
@@ -69,16 +71,18 @@ export function SunbizDataForm({
   clientId,
   reportYear,
   existingData,
+  defaultFein,
+  defaultDocumentNumber,
   onSave,
   onCancel,
 }: SunbizDataFormProps) {
   const [saving, setSaving] = useState(false);
 
   // Entity Info
-  const [documentNumber, setDocumentNumber] = useState(existingData?.documentNumber || '');
+  const [documentNumber, setDocumentNumber] = useState(existingData?.documentNumber || defaultDocumentNumber || '');
   const [entityType, setEntityType] = useState(existingData?.entityType || 'llc');
   const [businessName, setBusinessName] = useState(existingData?.businessName || '');
-  const [fein, setFein] = useState(existingData?.fein || '');
+  const [fein, setFein] = useState(existingData?.fein || defaultFein || '');
 
   // Principal Office
   const [principalOffice, setPrincipalOffice] = useState({
@@ -90,6 +94,7 @@ export function SunbizDataForm({
   });
 
   // Mailing Address
+  const [sameAsPrincipal, setSameAsPrincipal] = useState(false);
   const [mailingAddress, setMailingAddress] = useState({
     street: existingData?.mailingAddress?.street || '',
     city: existingData?.mailingAddress?.city || '',
@@ -97,6 +102,12 @@ export function SunbizDataForm({
     zipCode: existingData?.mailingAddress?.zipCode || '',
     country: 'United States',
   });
+
+  const updatePrincipalOffice = (updates: Partial<typeof principalOffice>) => {
+    const next = { ...principalOffice, ...updates };
+    setPrincipalOffice(next);
+    if (sameAsPrincipal) setMailingAddress(next);
+  };
 
   // Registered Agent
   const [registeredAgent, setRegisteredAgent] = useState({
@@ -261,16 +272,14 @@ const handleSave = async () => {
             <Input
               label="Street"
               value={principalOffice.street}
-              onChange={(e) =>
-                setPrincipalOffice({ ...principalOffice, street: e.target.value })
-              }
+              onChange={(e) => updatePrincipalOffice({ street: e.target.value })}
               required
             />
           </div>
           <Input
             label="City"
             value={principalOffice.city}
-            onChange={(e) => setPrincipalOffice({ ...principalOffice, city: e.target.value })}
+            onChange={(e) => updatePrincipalOffice({ city: e.target.value })}
             required
           />
           <div className="grid grid-cols-2 gap-4">
@@ -279,9 +288,7 @@ const handleSave = async () => {
               <select
                 className="input"
                 value={principalOffice.state}
-                onChange={(e) =>
-                  setPrincipalOffice({ ...principalOffice, state: e.target.value })
-                }
+                onChange={(e) => updatePrincipalOffice({ state: e.target.value })}
               >
                 <option value="">Select</option>
                 {US_STATES.map((state) => (
@@ -294,9 +301,7 @@ const handleSave = async () => {
             <Input
               label="ZIP"
               value={principalOffice.zipCode}
-              onChange={(e) =>
-                setPrincipalOffice({ ...principalOffice, zipCode: e.target.value })
-              }
+              onChange={(e) => updatePrincipalOffice({ zipCode: e.target.value })}
               required
             />
           </div>
@@ -305,15 +310,28 @@ const handleSave = async () => {
 
       {/* Mailing Address */}
       <div>
-        <h4 className="mb-3 font-medium text-gray-700">Mailing Address</h4>
+        <div className="mb-3 flex items-center justify-between">
+          <h4 className="font-medium text-gray-700">Mailing Address</h4>
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-600">
+            <input
+              type="checkbox"
+              checked={sameAsPrincipal}
+              onChange={(e) => {
+                setSameAsPrincipal(e.target.checked);
+                if (e.target.checked) setMailingAddress({ ...principalOffice });
+              }}
+              className="h-4 w-4 rounded border-gray-300 accent-primary"
+            />
+            Same as Principal Office
+          </label>
+        </div>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
             <Input
               label="Street"
               value={mailingAddress.street}
-              onChange={(e) =>
-                setMailingAddress({ ...mailingAddress, street: e.target.value })
-              }
+              onChange={(e) => setMailingAddress({ ...mailingAddress, street: e.target.value })}
+              disabled={sameAsPrincipal}
               required
             />
           </div>
@@ -321,6 +339,7 @@ const handleSave = async () => {
             label="City"
             value={mailingAddress.city}
             onChange={(e) => setMailingAddress({ ...mailingAddress, city: e.target.value })}
+            disabled={sameAsPrincipal}
             required
           />
           <div className="grid grid-cols-2 gap-4">
@@ -329,9 +348,8 @@ const handleSave = async () => {
               <select
                 className="input"
                 value={mailingAddress.state}
-                onChange={(e) =>
-                  setMailingAddress({ ...mailingAddress, state: e.target.value })
-                }
+                onChange={(e) => setMailingAddress({ ...mailingAddress, state: e.target.value })}
+                disabled={sameAsPrincipal}
               >
                 <option value="">Select</option>
                 {US_STATES.map((state) => (
@@ -344,9 +362,8 @@ const handleSave = async () => {
             <Input
               label="ZIP"
               value={mailingAddress.zipCode}
-              onChange={(e) =>
-                setMailingAddress({ ...mailingAddress, zipCode: e.target.value })
-              }
+              onChange={(e) => setMailingAddress({ ...mailingAddress, zipCode: e.target.value })}
+              disabled={sameAsPrincipal}
               required
             />
           </div>

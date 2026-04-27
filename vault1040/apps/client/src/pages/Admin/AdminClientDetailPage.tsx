@@ -402,6 +402,8 @@ export function AdminClientDetailPage() {
                       clientId={id!}
                       reportYear={year}
                       existingData={mergedData}
+                      defaultFein={formData.fein || undefined}
+                      defaultDocumentNumber={formData.documentNumber || undefined}
                       onSave={handleSunbizSaved}
                       onCancel={() => {
                         setShowSunbizForm(false);
