@@ -97,6 +97,7 @@ export function SunbizDataForm({
   onCancel,
 }: SunbizDataFormProps) {
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [sameAsPrincipal, setSameAsPrincipal] = useState(false);
 
   const {
@@ -105,7 +106,7 @@ export function SunbizDataForm({
     watch,
     setValue,
     control,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<SunbizFormData>({
     resolver: zodResolver(sunbizSchema),
     defaultValues: {
@@ -164,6 +165,7 @@ export function SunbizDataForm({
 
   const onSubmit = async (data: SunbizFormData) => {
     setSaving(true);
+    setSaveError(null);
     try {
       await api.post(`/admin/clients/${clientId}/sunbiz`, {
         reportYear,
@@ -175,9 +177,15 @@ export function SunbizDataForm({
       onSave();
     } catch (error) {
       console.error('Failed to save Sunbiz data:', error);
+      setSaveError('Failed to save. Please try again.');
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleCancel = () => {
+    if (isDirty && !window.confirm('Discard unsaved changes?')) return;
+    onCancel();
   };
 
   return (
@@ -527,13 +535,18 @@ export function SunbizDataForm({
       )}
 
       {/* Actions */}
-      <div className="flex justify-end gap-2 border-t pt-4">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button onClick={handleSubmit(onSubmit)} disabled={saving}>
-          {saving ? 'Saving...' : 'Save Sunbiz Data'}
-        </Button>
+      <div className="border-t pt-4">
+        {saveError && (
+          <p className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{saveError}</p>
+        )}
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="outline" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button type="button" onClick={handleSubmit(onSubmit)} disabled={saving}>
+            {saving ? 'Saving...' : 'Save Sunbiz Data'}
+          </Button>
+        </div>
       </div>
     </div>
   );

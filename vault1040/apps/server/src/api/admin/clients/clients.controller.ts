@@ -557,17 +557,30 @@ export const confirmExternalPayment = async (req: Request, res: Response) => {
     throw ApiError.badRequest('This report has already been submitted');
   }
 
-  // Mark payment as confirmed
-  const updatedToken = await prisma.prefillToken.update({
-    where: { id: tokenId },
-    data: {
-      paymentConfirmed: true,
-      paymentConfirmedAt: new Date(),
-      paymentConfirmedBy: req.user!.id,
-      externalPaymentMethod: paymentMethod,
-      externalPaymentNotes: notes || null,
-    },
-  });
+  const now = new Date();
+
+  // Mark payment as confirmed and update the linked draft filing in one transaction
+  const [updatedToken] = await prisma.$transaction([
+    prisma.prefillToken.update({
+      where: { id: tokenId },
+      data: {
+        paymentConfirmed: true,
+        paymentConfirmedAt: now,
+        paymentConfirmedBy: req.user!.id,
+        externalPaymentMethod: paymentMethod,
+        externalPaymentNotes: notes || null,
+      },
+    }),
+    prisma.annualReportFiling.updateMany({
+      where: { prefillTokenId: tokenId },
+      data: {
+        paymentStatus: 'SUCCEEDED',
+        paymentMethod,
+        paidAt: now,
+        status: 'PAYMENT_RECEIVED',
+      },
+    }),
+  ]);
 
   res.json({
     success: true,
@@ -612,17 +625,28 @@ export const revokeExternalPayment = async (req: Request, res: Response) => {
     throw ApiError.badRequest('Cannot revoke payment confirmation after submission');
   }
 
-  // Revoke payment confirmation
-  const updatedToken = await prisma.prefillToken.update({
-    where: { id: tokenId },
-    data: {
-      paymentConfirmed: false,
-      paymentConfirmedAt: null,
-      paymentConfirmedBy: null,
-      externalPaymentMethod: null,
-      externalPaymentNotes: null,
-    },
-  });
+  // Revoke payment confirmation and revert the linked draft filing in one transaction
+  const [updatedToken] = await prisma.$transaction([
+    prisma.prefillToken.update({
+      where: { id: tokenId },
+      data: {
+        paymentConfirmed: false,
+        paymentConfirmedAt: null,
+        paymentConfirmedBy: null,
+        externalPaymentMethod: null,
+        externalPaymentNotes: null,
+      },
+    }),
+    prisma.annualReportFiling.updateMany({
+      where: { prefillTokenId: tokenId },
+      data: {
+        paymentStatus: 'PENDING',
+        paymentMethod: null,
+        paidAt: null,
+        status: 'LINK_SENT',
+      },
+    }),
+  ]);
 
   res.json({
     success: true,

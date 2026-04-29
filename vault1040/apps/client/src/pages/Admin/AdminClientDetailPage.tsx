@@ -327,7 +327,7 @@ export function AdminClientDetailPage() {
               Delete
             </Button>
           )}
-          <Button onClick={handleSubmit(handleSave)} disabled={saving}>
+          <Button type="button" onClick={handleSubmit(handleSave)} disabled={saving}>
             <Save className="mr-2 h-4 w-4" />
             {saving ? 'Saving...' : 'Save'}
           </Button>

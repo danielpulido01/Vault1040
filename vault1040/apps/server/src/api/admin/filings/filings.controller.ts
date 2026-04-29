@@ -127,7 +127,7 @@ export const getFiling = async (req: Request, res: Response) => {
 
 export const updateFilingStatus = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { status, adminNotes } = req.body;
+  const { status, adminNotes, paymentStatus, paymentMethod } = req.body;
 
   const filing = await prisma.annualReportFiling.findUnique({
     where: { id },
@@ -152,6 +152,21 @@ export const updateFilingStatus = async (req: Request, res: Response) => {
 
   if (adminNotes !== undefined) {
     updateData.adminNotes = adminNotes;
+  }
+
+  if (paymentStatus) {
+    updateData.paymentStatus = paymentStatus;
+    if (paymentStatus === 'SUCCEEDED' && !filing.paidAt) {
+      updateData.paidAt = new Date();
+      // Auto-advance status from PENDING to PAYMENT_RECEIVED when marking paid
+      if (!status && filing.status === 'PENDING') {
+        updateData.status = 'PAYMENT_RECEIVED';
+      }
+    }
+  }
+
+  if (paymentMethod !== undefined) {
+    updateData.paymentMethod = paymentMethod;
   }
 
   const updatedFiling = await prisma.annualReportFiling.update({

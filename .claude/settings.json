@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "PowerShell(Get-NetTCPConnection -LocalPort 5432 | Select-Object LocalPort, OwningProcess | ForEach-Object { $p = Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue; [PSCustomObject]@{ PID=$_.OwningProcess; Process=$p.ProcessName; Path=$p.Path } })"
+      "PowerShell(Get-NetTCPConnection -LocalPort 5432 | Select-Object LocalPort, OwningProcess | ForEach-Object { $p = Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue; [PSCustomObject]@{ PID=$_.OwningProcess; Process=$p.ProcessName; Path=$p.Path } })",
+      "PowerShell(cd \"c:\\\\Users\\\\danie\\\\Documents\\\\homepage-vault\\\\vault1040\\\\apps\\\\server\"; $env:DATABASE_URL=\"postgresql://vault1040_user:ShjzFT264MSapcUdZv9Vecdx8JNkPbT8@dpg-d6jgh9vgi27c73d4k1r0-a.oregon-postgres.render.com/vault1040?sslmode=require\"; pnpm db:migrate:deploy)"
     ]
   }
 }

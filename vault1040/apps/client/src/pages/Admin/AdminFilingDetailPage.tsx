@@ -123,8 +123,10 @@ export function AdminFilingDetailPage() {
   const [filing, setFiling] = useState<Filing | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [markingPaid, setMarkingPaid] = useState(false);
   const [status, setStatus] = useState('');
   const [adminNotes, setAdminNotes] = useState('');
+  const [externalPaymentMethod, setExternalPaymentMethod] = useState('cash');
 
   useEffect(() => {
     if (id) {
@@ -149,15 +151,27 @@ export function AdminFilingDetailPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await api.patch(`/admin/filings/${id}`, {
-        status,
-        adminNotes,
-      });
+      await api.patch(`/admin/filings/${id}`, { status, adminNotes });
       await fetchFiling();
     } catch (error) {
       console.error('Failed to update filing:', error);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleMarkPaid = async () => {
+    setMarkingPaid(true);
+    try {
+      await api.patch(`/admin/filings/${id}`, {
+        paymentStatus: 'SUCCEEDED',
+        paymentMethod: externalPaymentMethod,
+      });
+      await fetchFiling();
+    } catch (error) {
+      console.error('Failed to mark filing as paid:', error);
+    } finally {
+      setMarkingPaid(false);
     }
   };
 
@@ -366,15 +380,20 @@ export function AdminFilingDetailPage() {
               </div>
             </dl>
 
-            {filing.paymentStatus === 'SUCCEEDED' && (
+            {filing.paymentStatus === 'SUCCEEDED' ? (
               <div className="mt-4 rounded-lg bg-green-50 p-3">
                 <div className="flex items-center gap-2 text-green-800">
                   <CheckCircle className="h-4 w-4" />
-                  <span className="font-medium">Payment Successful</span>
+                  <span className="font-medium">Payment Received</span>
                 </div>
                 {filing.paymentLast4 && (
                   <p className="mt-1 text-sm text-green-600">
                     Card ending in {filing.paymentLast4}
+                  </p>
+                )}
+                {filing.paymentMethod && !filing.paymentLast4 && (
+                  <p className="mt-1 text-sm text-green-600 capitalize">
+                    {filing.paymentMethod.replace(/_/g, ' ')}
                   </p>
                 )}
                 {filing.paidAt && (
@@ -382,6 +401,29 @@ export function AdminFilingDetailPage() {
                     Paid on {formatDate(filing.paidAt)}
                   </p>
                 )}
+              </div>
+            ) : (
+              <div className="mt-4 space-y-2">
+                <p className="text-sm font-medium text-gray-700">Mark as Paid</p>
+                <select
+                  value={externalPaymentMethod}
+                  onChange={(e) => setExternalPaymentMethod(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  <option value="cash">Cash</option>
+                  <option value="check">Check</option>
+                  <option value="wire">Wire Transfer</option>
+                  <option value="card">Card (manual)</option>
+                  <option value="other">Other</option>
+                </select>
+                <Button
+                  onClick={handleMarkPaid}
+                  disabled={markingPaid}
+                  className="w-full"
+                >
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  {markingPaid ? 'Saving...' : 'Mark Payment Received'}
+                </Button>
               </div>
             )}
 
