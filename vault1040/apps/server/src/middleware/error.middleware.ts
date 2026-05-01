@@ -4,8 +4,9 @@ import { ZodError } from 'zod';
 import { config } from '../config/index.js';
 
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
-  // Log error in development
-  if (config.nodeEnv === 'development') {
+  // Only log unexpected (non-ApiError) errors — 4xx are expected client errors
+  const isExpected = err instanceof ApiError || err instanceof ZodError;
+  if (!isExpected) {
     console.error('Error:', err);
   }
 

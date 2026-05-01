@@ -428,6 +428,113 @@ export const generateToken = async (req: Request, res: Response) => {
   });
 };
 
+export const regenerateToken = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { reportYear } = req.body;
+
+  const client = await prisma.client.findUnique({
+    where: { id },
+    include: {
+      sunbizData: {
+        where: { reportYear: parseInt(reportYear, 10) },
+      },
+    },
+  });
+
+  if (!client) {
+    throw ApiError.notFound('Client not found');
+  }
+
+  if (client.sunbizData.length === 0) {
+    throw ApiError.badRequest('No Sunbiz data found for this year. Please add Sunbiz data first.');
+  }
+
+  const activeTokens = await prisma.prefillToken.findMany({
+    where: { clientId: id, reportYear: parseInt(reportYear, 10), submittedAt: null },
+    select: { id: true },
+  });
+
+  const now = new Date();
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  const sunbizData = client.sunbizData[0];
+
+  let referenceNumber = generateReferenceNumber();
+  let attempts = 0;
+  while (attempts < 5) {
+    const existing = await prisma.annualReportFiling.findUnique({ where: { referenceNumber } });
+    if (!existing) break;
+    referenceNumber = generateReferenceNumber();
+    attempts++;
+  }
+
+  const stateFee = STATE_FEES[sunbizData.entityType] || 0;
+  const lateFee = isAfterMay1() && sunbizData.entityType !== 'non-profit-corp' ? LATE_FEE : 0;
+  const totalFee = stateFee + SERVICE_FEE + lateFee;
+  const activeTokenIds = activeTokens.map((t) => t.id);
+
+  const prefillToken = await prisma.$transaction(async (tx) => {
+    if (activeTokenIds.length > 0) {
+      await tx.prefillToken.updateMany({
+        where: { id: { in: activeTokenIds } },
+        data: { expiresAt: now },
+      });
+      await tx.annualReportFiling.updateMany({
+        where: { prefillTokenId: { in: activeTokenIds } },
+        data: { status: 'CANCELLED' },
+      });
+    }
+
+    const newToken = await tx.prefillToken.create({
+      data: {
+        token,
+        clientId: id,
+        reportYear: parseInt(reportYear, 10),
+        expiresAt,
+        createdBy: req.user!.id,
+      },
+    });
+
+    await tx.annualReportFiling.create({
+      data: {
+        referenceNumber,
+        contactEmail: client.contactEmail,
+        contactPhone: client.contactPhone ?? null,
+        documentNumber: sunbizData.documentNumber,
+        entityType: sunbizData.entityType,
+        businessName: sunbizData.businessName,
+        fein: sunbizData.fein,
+        principalOffice: sunbizData.principalOffice as object,
+        mailingAddress: sunbizData.mailingAddress as object,
+        registeredAgent: sunbizData.registeredAgent as object,
+        officers: sunbizData.officers ?? [],
+        llcMembers: sunbizData.llcMembers ?? [],
+        lpPartners: sunbizData.lpPartners ?? [],
+        stateFee: new Decimal(stateFee),
+        serviceFee: new Decimal(SERVICE_FEE),
+        lateFee: new Decimal(lateFee),
+        totalFee: new Decimal(totalFee),
+        status: 'LINK_SENT',
+        paymentStatus: 'PENDING',
+        prefillTokenId: newToken.id,
+      },
+    });
+
+    return newToken;
+  });
+
+  const prefillUrl = `${config.clientUrl}/annual-report?token=${token}`;
+
+  res.status(201).json({
+    success: true,
+    data: {
+      token: prefillToken.token,
+      prefillUrl,
+      expiresAt: prefillToken.expiresAt,
+    },
+  });
+};
+
 export const getTokens = async (req: Request, res: Response) => {
   const { id } = req.params;
 

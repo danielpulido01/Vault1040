@@ -14,6 +14,7 @@ import {
   DollarSign,
   CheckCircle,
   XCircle,
+  RefreshCw,
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -125,6 +126,7 @@ export function AdminClientDetailPage() {
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [generatingToken, setGeneratingToken] = useState(false);
+  const [regeneratingToken, setRegeneratingToken] = useState<number | null>(null);
   const [sendingEmail, setSendingEmail] = useState<string | null>(null);
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
 
@@ -214,6 +216,23 @@ export function AdminClientDetailPage() {
       navigate('/admin/clients');
     } catch (error) {
       console.error('Failed to delete client:', error);
+    }
+  };
+
+  const handleRegenerateToken = async (reportYear: number) => {
+    if (!confirm('This will invalidate the current link and generate a new one. Continue?')) return;
+    setRegeneratingToken(reportYear);
+    try {
+      const response = await api.post(`/admin/clients/${id}/regenerate-token`, { reportYear });
+      fetchClient();
+      const url = response.data.data.prefillUrl;
+      await navigator.clipboard.writeText(url);
+      setCopiedUrl(url);
+      setTimeout(() => setCopiedUrl(null), 3000);
+    } catch (error) {
+      console.error('Failed to regenerate token:', error);
+    } finally {
+      setRegeneratingToken(null);
     }
   };
 
@@ -596,7 +615,15 @@ export function AdminClientDetailPage() {
                               </button>
                             )}
 
-                            <div className="flex items-center justify-end">
+                            <div className="flex items-center justify-between">
+                              <button
+                                onClick={() => handleRegenerateToken(data.reportYear)}
+                                disabled={regeneratingToken === data.reportYear}
+                                className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                              >
+                                <RefreshCw className="h-3 w-3" />
+                                {regeneratingToken === data.reportYear ? 'Resetting...' : 'Reset Link'}
+                              </button>
                               {!token.emailSentAt && (
                                 <button
                                   onClick={() => handleSendEmail(token.id)}

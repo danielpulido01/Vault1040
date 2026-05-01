@@ -20,6 +20,7 @@ router.get('/:id/sunbiz/:year', asyncHandler(clientsController.getSunbizData));
 
 // Token management
 router.post('/:id/generate-token', asyncHandler(clientsController.generateToken));
+router.post('/:id/regenerate-token', asyncHandler(clientsController.regenerateToken));
 router.get('/:id/tokens', asyncHandler(clientsController.getTokens));
 
 // Email
