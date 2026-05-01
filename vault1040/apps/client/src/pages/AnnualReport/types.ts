@@ -100,6 +100,6 @@ export function calculateFees(entityType: EntityType, isLate: boolean): FilingFe
 
 export function isAfterMay1(): boolean {
   const now = new Date();
-  const may1 = new Date(now.getFullYear(), 4, 1); // May is month 4 (0-indexed)
-  return now > may1;
+  const may2 = new Date(now.getFullYear(), 4, 2); // Late fee starts May 2
+  return now >= may2;
 }
