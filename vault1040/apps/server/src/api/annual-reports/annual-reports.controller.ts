@@ -17,8 +17,8 @@ const LATE_FEE = 400.0;
 
 function isAfterMay1(): boolean {
   const now = new Date();
-  const may1 = new Date(now.getFullYear(), 4, 1);
-  return now > may1;
+  const may2 = new Date(now.getFullYear(), 4, 2);
+  return now >= may2;
 }
 
 function generateReferenceNumber(): string {
