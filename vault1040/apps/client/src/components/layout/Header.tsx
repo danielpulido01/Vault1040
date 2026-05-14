@@ -137,7 +137,7 @@ export function Header() {
                   </Button>
                 </Link>
                 <Link to="/booking">
-                  <Button size="sm" className="shadow-sm shadow-primary/20">
+                  <Button size="sm" className="rounded-full px-5 shadow-sm shadow-primary/20">
                     {t.common.buttons.bookConsultation}
                   </Button>
                 </Link>

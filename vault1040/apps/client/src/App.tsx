@@ -8,6 +8,7 @@ import { FAQPage } from './pages/FAQ/FAQPage';
 import { ContactPage } from './pages/Contact/ContactPage';
 import { BookingPage } from './pages/Booking/BookingPage';
 import { AnnualReportPage } from './pages/AnnualReport/AnnualReportPage';
+import { LLCFormationPage } from './pages/LLCFormation/LLCFormationPage';
 import { LoginPage } from './pages/Auth/LoginPage';
 import { RegisterPage } from './pages/Auth/RegisterPage';
 import { ForgotPasswordPage } from './pages/Auth/ForgotPasswordPage';
@@ -22,6 +23,8 @@ import { AdminClientDetailPage } from './pages/Admin/AdminClientDetailPage';
 import { AdminFilingsPage } from './pages/Admin/AdminFilingsPage';
 import { AdminFilingDetailPage } from './pages/Admin/AdminFilingDetailPage';
 import { AdminAppointmentsPage } from './pages/Admin/AdminAppointmentsPage';
+import { AdminLLCFormationsPage } from './pages/Admin/AdminLLCFormationsPage';
+import { AdminLLCFormationDetailPage } from './pages/Admin/AdminLLCFormationDetailPage';
 
 function MainLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -54,6 +57,8 @@ function AppRoutes() {
           <Route path="clients/:id" element={<AdminClientDetailPage />} />
           <Route path="filings" element={<AdminFilingsPage />} />
           <Route path="filings/:id" element={<AdminFilingDetailPage />} />
+          <Route path="llc-formations" element={<AdminLLCFormationsPage />} />
+          <Route path="llc-formations/:id" element={<AdminLLCFormationDetailPage />} />
         </Route>
       </Routes>
     );
@@ -69,6 +74,7 @@ function AppRoutes() {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/booking" element={<BookingPage />} />
         <Route path="/annual-report" element={<AnnualReportPage />} />
+        <Route path="/llc-formation" element={<LLCFormationPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />

@@ -62,6 +62,43 @@ export const createPaymentIntent = async (req: Request, res: Response) => {
   });
 };
 
+const LLC_STATE_FEE = 125.0;
+const LLC_SERVICE_FEE = 50.0;
+
+export const createLLCPaymentIntent = async (req: Request, res: Response) => {
+  const { llcName, contactEmail } = req.body;
+
+  const totalFee = LLC_STATE_FEE + LLC_SERVICE_FEE;
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: Math.round(totalFee * 100),
+    currency: 'usd',
+    metadata: {
+      type: 'llc-formation',
+      llcName,
+      contactEmail,
+      stateFee: LLC_STATE_FEE.toString(),
+      serviceFee: LLC_SERVICE_FEE.toString(),
+      totalFee: totalFee.toString(),
+    },
+    receipt_email: contactEmail,
+    description: `Florida LLC Formation - ${llcName}`,
+  });
+
+  res.json({
+    success: true,
+    data: {
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
+      fees: {
+        stateFee: LLC_STATE_FEE,
+        serviceFee: LLC_SERVICE_FEE,
+        totalFee,
+      },
+    },
+  });
+};
+
 export const getPaymentIntent = async (req: Request, res: Response) => {
   const { id } = req.params;
 

@@ -56,9 +56,9 @@ export function ServicesPage() {
                         </li>
                       ))}
                     </ul>
-                    <Link to="/booking">
+                    <Link to={service.id === 'llc-formation' ? '/llc-formation' : '/booking'}>
                       <Button rightIcon={<ArrowRight className="h-5 w-5" />}>
-                        {t.services.ctaButton}
+                        {service.id === 'llc-formation' ? 'Get Started' : t.services.ctaButton}
                       </Button>
                     </Link>
                   </div>

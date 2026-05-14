@@ -32,19 +32,42 @@ pnpm lint             # runs both client and server linters
 
 No test suite exists yet.
 
+## Tech Stack
+
+**Frontend** (`apps/client` — port 5173)
+- React 18 + Vite + TypeScript
+- Tailwind CSS
+- Zustand (auth state), TanStack Query (server state)
+- React Hook Form + Zod (validation)
+- React Router v6
+
+**Backend** (`apps/server` — port 3001)
+- Node.js + Express + TypeScript
+- PostgreSQL + Prisma ORM
+- JWT auth (access + refresh token rotation)
+- Zod (request validation)
+- Stripe (payments), Resend (email)
+
+**Tooling**
+- pnpm workspaces (monorepo)
+- Docker (local Postgres)
+- tsx watch (server dev)
+
 ## Architecture
 
-### Two product flows
+### Three product flows
 
-**1. Appointments (Bookings)** — `/book` on the frontend, `/api/bookings` on the backend. Clients book time slots for tax services. Slots are 30-minute intervals within `AvailabilitySchedule` records (Mon–Fri 9–5 by default). Bookings can be guest (no account) or linked to a `User`.
+**1. Appointments (Bookings)** — `/booking` on the frontend, `/api/bookings` on the backend. Clients book time slots for tax services. Slots are 30-minute intervals within `AvailabilitySchedule` records (Mon–Fri 9–5 by default). Bookings can be guest (no account) or linked to a `User`.
 
 **2. Annual Report Filings** — `/annual-report` on the frontend, `/api/annual-reports` on the backend. Clients submit Florida annual report data for business entities, pay via Stripe, and the admin processes/submits the filing. Fees are calculated from entity type and filing date.
+
+**3. Florida LLC Formation** — `/llc-formation` on the frontend, `/api/llc-formations` on the backend. Clients fill a 4-step wizard (business info → addresses → management structure → review & pay), pay $175 ($125 state fee + $50 service fee) via Stripe, and the admin manually files Articles of Organization with Sunbiz. Status pipeline: `PENDING → PAYMENT_RECEIVED → IN_PROGRESS → SUBMITTED → COMPLETED`.
 
 ### Client Pre-fill Flow
 
 Admin creates a `Client` record with `ClientSunbizData` (business data from Florida Sunbiz), then generates a `PrefillToken`. A link with that token is sent to the client, which pre-populates the annual report form. Tokens support external payment confirmation (cash, check, etc.) bypassing Stripe.
 
-Routes: `GET /api/prefill/:token` (load form data), `POST /api/annual-reports` (submit), `POST /api/payments/create-intent` (Stripe).
+Routes: `GET /api/prefill/:token` (load form data), `POST /api/annual-reports` (submit), `POST /api/payments/create-payment-intent` (Stripe annual reports), `POST /api/payments/create-llc-payment-intent` (Stripe LLC formations).
 
 ### Auth Flow
 
@@ -59,6 +82,7 @@ Protected by `authMiddleware` + `adminMiddleware` (both `ADMIN` and `STAFF` role
 - **Clients** — `Client` records and `PrefillToken` generation
 - **Annual Reports (Filings)** — view/update `AnnualReportFiling` status, add admin notes
 - **Appointments** — view/update `Booking` status (Confirm, Complete, Cancel, No Show)
+- **LLC Formations** — view/update `LLCFormation` status, add admin notes
 
 ### Backend Conventions
 
@@ -74,13 +98,17 @@ Protected by `authMiddleware` + `adminMiddleware` (both `ADMIN` and `STAFF` role
 | Purpose | Location |
 |---------|----------|
 | Database schema | `vault1040/apps/server/prisma/schema.prisma` |
-| Server entry + route mounting | `vault1040/apps/server/src/index.ts` |
+| Server entry + route mounting | `vault1040/apps/server/src/app.ts` |
 | Auth middleware | `vault1040/apps/server/src/middleware/auth.middleware.ts` |
 | Admin routes index | `vault1040/apps/server/src/api/admin/admin.routes.ts` |
 | Axios client + token refresh | `vault1040/apps/client/src/lib/api.ts` |
 | Auth Zustand store | `vault1040/apps/client/src/features/auth/store/authStore.ts` |
 | Route definitions | `vault1040/apps/client/src/App.tsx` |
 | Admin layout + sidebar | `vault1040/apps/client/src/pages/Admin/AdminLayout.tsx` |
+| LLC formation page | `vault1040/apps/client/src/pages/LLCFormation/LLCFormationPage.tsx` |
+| LLC formation API | `vault1040/apps/server/src/api/llc-formations/llc-formations.controller.ts` |
+| LLC admin API | `vault1040/apps/server/src/api/admin/llc-formations/llc-formations.controller.ts` |
+| Services icons map | `vault1040/apps/client/src/data/services.ts` |
 
 ## Environment Variables
 

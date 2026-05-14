@@ -19,6 +19,13 @@ router.post(
   asyncHandler(paymentsController.createPaymentIntent)
 );
 
+// Create PaymentIntent for LLC formation
+router.post(
+  '/create-llc-payment-intent',
+  optionalAuthMiddleware,
+  asyncHandler(paymentsController.createLLCPaymentIntent)
+);
+
 // Get PaymentIntent status
 router.get(
   '/payment-intent/:id',

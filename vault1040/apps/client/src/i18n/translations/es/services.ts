@@ -59,5 +59,22 @@ export const services: ServicesTranslations = {
         'Preparación de acuerdo operativo',
       ],
     },
+    {
+      id: 'llc-formation',
+      name: 'Formación de LLC en Florida',
+      slug: 'llc-formation',
+      shortDescription:
+        'Forme su LLC en Florida hoy — nosotros nos encargamos del papeleo.',
+      description:
+        'Presentamos sus Artículos de Organización ante la División de Corporaciones de Florida. Incluye designación de agente registrado, estructura de gestión y confirmación una vez aprobado en Sunbiz.',
+      features: [
+        'Presentación de Artículos de Organización (tarifa estatal de $125 incluida)',
+        'Designación de agente registrado',
+        'Estructura de gestión por miembros o gerentes',
+        'Plantilla de acuerdo operativo',
+        'Orientación para solicitud de EIN',
+        'Confirmación una vez registrado en Sunbiz',
+      ],
+    },
   ],
 };

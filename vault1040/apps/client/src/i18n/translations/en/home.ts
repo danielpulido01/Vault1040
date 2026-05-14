@@ -3,12 +3,13 @@ import type { HomeTranslations } from '../../types';
 export const home: HomeTranslations = {
   hero: {
     badge: 'Trusted by 1,000+ Businesses',
-    title: 'Solutions for',
-    titleAccent: 'Business Prosperity',
+    title: 'Your Tax Peace of Mind',
+    titleAccent: 'in Miami',
     subtitle:
-      'More than a tax service company. We provide high standards, responsiveness, and qualified services to help your business thrive.',
+      'Professional tax preparation, bookkeeping, and business formation services in Miami.',
     ctaPrimary: 'Get FREE Consultation',
     ctaSecondary: 'Explore Our Services',
+    whatsapp: 'Whatsapp',
     highlights: {
       irsCompliant: 'IRS Compliant',
       maximizeReturns: 'Maximize Returns',

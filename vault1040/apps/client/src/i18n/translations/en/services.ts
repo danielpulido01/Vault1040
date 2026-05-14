@@ -59,5 +59,22 @@ export const services: ServicesTranslations = {
         'Operating agreement preparation',
       ],
     },
+    {
+      id: 'llc-formation',
+      name: 'Florida LLC Formation',
+      slug: 'llc-formation',
+      shortDescription:
+        'Start your Florida LLC today — we handle the paperwork.',
+      description:
+        'We file your Florida LLC Articles of Organization with the Division of Corporations. Includes registered agent designation, management structure setup, and confirmation once filed with Sunbiz.',
+      features: [
+        'Articles of Organization filing ($125 state fee included)',
+        'Registered agent designation',
+        'Member or manager-managed structure',
+        'Operating agreement template',
+        'EIN application guidance',
+        'Confirmation once filed with Sunbiz',
+      ],
+    },
   ],
 };

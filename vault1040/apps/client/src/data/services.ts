@@ -1,10 +1,11 @@
-import { FileText, Calculator, Building2 } from 'lucide-react';
+import { FileText, Calculator, Building2, Briefcase } from 'lucide-react';
 
 // Icons for services (used with translations)
 export const serviceIcons = {
   'tax-preparation': FileText,
   'bookkeeping': Calculator,
   'corporate-setup': Building2,
+  'llc-formation': Briefcase,
 } as const;
 
 // Legacy export - use translations (t.services.items) instead

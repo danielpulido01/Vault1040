@@ -68,6 +68,7 @@ export interface HomeTranslations {
     subtitle: string;
     ctaPrimary: string;
     ctaSecondary: string;
+    whatsapp: string;
     highlights: {
       irsCompliant: string;
       maximizeReturns: string;

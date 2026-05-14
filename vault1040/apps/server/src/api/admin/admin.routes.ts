@@ -3,6 +3,7 @@ import { authMiddleware, adminMiddleware } from '../../middleware/auth.middlewar
 import clientsRoutes from './clients/clients.routes.js';
 import filingsRoutes from './filings/filings.routes.js';
 import bookingsRoutes from './bookings/bookings.routes.js';
+import llcFormationsRoutes from './llc-formations/llc-formations.routes.js';
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.use(adminMiddleware);
 router.use('/clients', clientsRoutes);
 router.use('/filings', filingsRoutes);
 router.use('/bookings', bookingsRoutes);
+router.use('/llc-formations', llcFormationsRoutes);
 
 export default router;

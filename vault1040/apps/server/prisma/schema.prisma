@@ -34,6 +34,7 @@ model User {
   bookings          Booking[]
   refreshTokens     RefreshToken[]
   annualReportFilings AnnualReportFiling[]
+  llcFormations     LLCFormation[]
   client            Client?
 
   @@map("users")
@@ -368,6 +369,89 @@ model ClientSunbizData {
   @@unique([clientId, reportYear])
   @@index([reportYear])
   @@map("client_sunbiz_data")
+}
+
+// ============================================
+// LLC FORMATIONS
+// ============================================
+
+model LLCFormation {
+  id                      String              @id @default(uuid())
+  referenceNumber         String              @unique @map("reference_number")
+
+  // User association (optional for guest submissions)
+  userId                  String?             @map("user_id")
+
+  // Contact info
+  contactEmail            String              @map("contact_email")
+  contactPhone            String?             @map("contact_phone")
+
+  // Business info
+  llcName                 String              @map("llc_name")
+  fein                    String?
+  effectiveDate           DateTime?           @map("effective_date")
+
+  // Principal office (stored as JSON)
+  principalOffice         Json                @map("principal_office")
+
+  // Mailing address
+  sameAsPrincipal         Boolean             @default(true) @map("same_as_principal")
+  mailingAddress          Json?               @map("mailing_address")
+
+  // Registered agent (stored as JSON)
+  registeredAgent         Json                @map("registered_agent")
+
+  // Management structure
+  managementType          ManagementType      @default(MEMBER_MANAGED) @map("management_type")
+  membersManagers         Json                @map("members_managers") @default("[]")
+
+  // Fee snapshot
+  stateFee                Decimal             @map("state_fee") @db.Decimal(10, 2)
+  serviceFee              Decimal             @map("service_fee") @db.Decimal(10, 2)
+  totalFee                Decimal             @map("total_fee") @db.Decimal(10, 2)
+
+  // Stripe payment fields
+  stripePaymentIntentId   String?             @unique @map("stripe_payment_intent_id")
+  paymentStatus           PaymentStatus       @default(PENDING) @map("payment_status")
+  paidAt                  DateTime?           @map("paid_at")
+  paymentMethod           String?             @map("payment_method")
+  paymentLast4            String?             @map("payment_last4")
+
+  // Status tracking
+  status                  LLCFormationStatus  @default(PENDING)
+
+  // Admin tracking
+  adminNotes              String?             @map("admin_notes") @db.Text
+  processedAt             DateTime?           @map("processed_at")
+  processedBy             String?             @map("processed_by")
+
+  // Metadata
+  ipAddress               String?             @map("ip_address")
+  userAgent               String?             @map("user_agent")
+
+  createdAt               DateTime            @default(now()) @map("created_at")
+  updatedAt               DateTime            @updatedAt @map("updated_at")
+
+  user                    User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("llc_formations")
+}
+
+enum LLCFormationStatus {
+  PENDING
+  PAYMENT_RECEIVED
+  IN_PROGRESS
+  SUBMITTED
+  COMPLETED
+  CANCELLED
+}
+
+enum ManagementType {
+  MEMBER_MANAGED
+  MANAGER_MANAGED
 }
 
 model PrefillToken {

@@ -1,11 +1,12 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { Users, LayoutDashboard, FileText, Calendar } from 'lucide-react';
+import { Users, LayoutDashboard, FileText, Calendar, Briefcase } from 'lucide-react';
 
 const navItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
   { to: '/admin/appointments', icon: Calendar, label: 'Appointments' },
   { to: '/admin/clients', icon: Users, label: 'Clients' },
   { to: '/admin/filings', icon: FileText, label: 'Annual Reports' },
+  { to: '/admin/llc-formations', icon: Briefcase, label: 'LLC Formations' },
 ];
 
 export function AdminLayout() {

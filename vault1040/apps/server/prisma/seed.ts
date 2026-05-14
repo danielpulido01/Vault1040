@@ -90,6 +90,14 @@ async function main() {
       price: 250.00,
       sortOrder: 3,
     },
+    {
+      name: 'Florida LLC Formation',
+      slug: 'llc-formation',
+      description: 'We file your Florida LLC Articles of Organization with the Division of Corporations. Includes registered agent designation and confirmation once filed with Sunbiz.',
+      duration: 0,
+      price: 175.00,
+      sortOrder: 4,
+    },
   ];
 
   for (const service of services) {

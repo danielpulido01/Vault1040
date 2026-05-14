@@ -3,12 +3,13 @@ import type { HomeTranslations } from '../../types';
 export const home: HomeTranslations = {
   hero: {
     badge: 'Más de 1,000 Empresas Confían en Nosotros',
-    title: 'Soluciones para la',
-    titleAccent: 'Prosperidad Empresarial',
+    title: 'Tu tranquilidad',
+    titleAccent: 'Contable en Miami',
     subtitle:
-      'Más que una empresa de servicios fiscales. Ofrecemos altos estándares, capacidad de respuesta y servicios calificados para ayudar a su negocio a prosperar.',
+      'Servicios profesionales de impuestos, contabilidad y constitución de empresas en Miami.',
     ctaPrimary: 'Consulta GRATIS',
     ctaSecondary: 'Ver Nuestros Servicios',
+    whatsapp: 'Whatsapp',
     highlights: {
       irsCompliant: 'Cumplimiento IRS',
       maximizeReturns: 'Maximizar Reembolsos',
