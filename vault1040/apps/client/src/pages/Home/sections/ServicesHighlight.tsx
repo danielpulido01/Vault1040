@@ -1,48 +1,63 @@
-import { Landmark, Network, FileCheck2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Landmark, Network, FileCheck2, ArrowRight } from 'lucide-react';
+import { SectionHeading } from '@/components/ui/SectionHeading';
+import { AccentText } from '@/components/ui/AccentText';
 import { useTranslation } from '@/i18n';
 
-const SERVICE_STATS = [
-  { id: 'tax-preparation', Icon: Landmark, count: 80, featured: false },
-  { id: 'bookkeeping', Icon: Network, count: 233, featured: true },
-  { id: 'corporate-setup', Icon: FileCheck2, count: 224, featured: false },
+const SERVICE_CARDS = [
+  { id: 'tax-preparation', Icon: Landmark },
+  { id: 'bookkeeping', Icon: Network },
+  { id: 'corporate-setup', Icon: FileCheck2 },
 ];
 
 export function ServicesHighlight() {
   const { t } = useTranslation();
 
   return (
-    <section className="bg-navy">
-      <div className="container max-w-3xl">
-        <div className="grid grid-cols-3 divide-x divide-white/10">
-          {SERVICE_STATS.map(({ id, Icon, count, featured }) => {
+    <section className="section bg-gray-50">
+      <div className="container">
+        <SectionHeading
+          subhead={t.home.services.subhead}
+          title={
+            <>
+              {t.home.services.title} <AccentText>{t.home.services.titleAccent}</AccentText>
+            </>
+          }
+          description={t.home.services.description}
+        />
+
+        <div className="grid gap-6 sm:grid-cols-3">
+          {SERVICE_CARDS.map(({ id, Icon }) => {
             const service = t.services.items.find((s) => s.id === id);
             return (
-              <div key={id} className="flex flex-col items-center gap-5 px-6 py-14 text-center">
-                {/* Thin green icon */}
-                <Icon className="h-12 w-12 text-primary" strokeWidth={1.25} />
+              <div
+                key={id}
+                className="group flex flex-col rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all duration-300 hover:border-primary/30 hover:shadow-lg"
+              >
+                {/* Icon */}
+                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-navy text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-white">
+                  <Icon className="h-7 w-7" strokeWidth={1.5} />
+                </div>
 
-                {/* Service name */}
-                <p className="text-sm font-semibold leading-snug text-white">
-                  {service?.name}
+                {/* Name */}
+                <h3 className="mb-3 text-xl font-bold text-navy">{service?.name}</h3>
+
+                {/* Benefit description */}
+                <p className="mb-6 flex-1 text-sm leading-relaxed text-gray-500">
+                  {service?.shortDescription}
                 </p>
 
-                {/* Count badge */}
-                <div
-                  className={`rounded-full px-5 py-1.5 text-sm font-bold ${
-                    featured
-                      ? 'bg-primary text-navy font-extrabold'
-                      : 'border border-white/20 text-white/70'
-                  }`}
+                {/* CTA */}
+                <Link
+                  to="/booking"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-all duration-300 hover:gap-3"
                 >
-                  {count}
-                </div>
+                  Book appointment <ArrowRight className="h-4 w-4" />
+                </Link>
               </div>
             );
           })}
         </div>
-
-        {/* Location */}
-        <p className="pb-8 text-center text-sm text-gray-500">Miami</p>
       </div>
     </section>
   );

@@ -16,7 +16,7 @@ export const services: ServicesTranslations = {
       name: 'Tax Return Preparation',
       slug: 'tax-preparation',
       shortDescription:
-        'Focus on running your business while we maximize your profits!',
+        'Maximize your refunds and stay IRS-compliant — stress-free. Forget audits and penalties.',
       description:
         'We will carefully file your federal and state tax returns electronically, minimizing your tax liability. Our experienced team ensures accuracy and compliance with all tax regulations.',
       features: [
@@ -32,7 +32,7 @@ export const services: ServicesTranslations = {
       name: 'Bookkeeping',
       slug: 'bookkeeping',
       shortDescription:
-        'Accurate financial records for informed business decisions.',
+        'Always know where your money is. Real-time financial clarity for your business.',
       description:
         'We maintain accurate financial records to support informed business decisions and facilitate information sharing with investors and banks for proper income reporting during tax periods.',
       features: [
@@ -48,7 +48,7 @@ export const services: ServicesTranslations = {
       name: 'Corporate Setup',
       slug: 'corporate-setup',
       shortDescription:
-        'Start your business the right way with expert guidance.',
+        'Avoid costly mistakes when forming your business. We choose the right structure and handle everything.',
       description:
         'Assistance with business formation, including entity type selection, name searches, and registration requirements to launch new ventures successfully.',
       features: [

@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+import { Calendar, Shield, TrendingUp, Clock } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -12,41 +14,86 @@ export function HeroSection() {
   const { t } = useTranslation();
 
   return (
-    <section className="relative flex min-h-[580px] items-center overflow-hidden bg-white">
-      {/* Background photo — drop /hero-bg.jpg into /public to activate */}
+    <section className="relative overflow-hidden bg-navy">
+      {/* Dot pattern */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/hero-bg.jpg')" }}
+        className="absolute inset-0 opacity-[0.04]"
+        style={{
+          backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+        }}
       />
+      {/* Glow accents */}
+      <div className="absolute -left-24 top-0 h-96 w-96 rounded-full bg-primary/10 blur-[80px]" />
+      <div className="absolute -right-24 bottom-0 h-96 w-96 rounded-full bg-primary/5 blur-[80px]" />
 
-      {/* White fade: strong on left, dissolves right */}
-      <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/30" />
+      <div className="container relative grid min-h-[580px] items-center gap-12 py-16 md:grid-cols-2 md:py-24">
 
-      {/* Soft bottom fade into the dark stats section */}
-      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white/60 to-transparent" />
+        {/* Left: Content */}
+        <div>
+          {/* Badge */}
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 backdrop-blur-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+              {t.home.hero.badge}
+            </span>
+          </div>
 
-      <div className="container relative py-24 md:py-32">
-        <div className="max-w-lg">
-          <h1 className="mb-5 text-5xl font-bold leading-[1.1] tracking-tight text-navy lg:text-6xl">
+          <h1 className="mb-5 text-4xl font-bold leading-[1.1] tracking-tight text-white lg:text-5xl xl:text-6xl">
             {t.home.hero.title}
             <br />
-            {t.home.hero.titleAccent}
+            <span className="text-primary">{t.home.hero.titleAccent}</span>
           </h1>
 
-          <p className="mb-10 text-base leading-relaxed text-gray-500">
+          <p className="mb-10 max-w-md text-base leading-relaxed text-gray-300">
             {t.home.hero.subtitle}
           </p>
 
-          {/* WhatsApp CTA */}
-          <a
-            href="https://wa.me/13055551040"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 rounded-full bg-primary px-8 py-4 text-base font-semibold text-white shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-105 hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/40"
-          >
-            <WhatsAppIcon className="h-5 w-5" />
-            {t.home.hero.whatsapp} ›
-          </a>
+          {/* Dual CTAs */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
+            <Link
+              to="/booking"
+              className="inline-flex items-center justify-center gap-3 rounded-full bg-primary px-8 py-4 text-base font-semibold text-white shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-105 hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/40"
+            >
+              <Calendar className="h-5 w-5" />
+              {t.home.hero.ctaPrimary}
+            </Link>
+
+            <a
+              href="https://wa.me/13055551040"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-3 rounded-full border border-white/20 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-white/40 hover:bg-white/15"
+            >
+              <WhatsAppIcon className="h-5 w-5 text-[#25D366]" />
+              {t.home.hero.whatsapp}
+            </a>
+          </div>
+
+          {/* Trust indicators */}
+          <div className="mt-10 flex flex-wrap gap-5 text-sm text-gray-400">
+            <span className="flex items-center gap-2">
+              <Shield className="h-4 w-4 text-primary" />
+              {t.home.hero.highlights.irsCompliant}
+            </span>
+            <span className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              {t.home.hero.highlights.maximizeReturns}
+            </span>
+            <span className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-primary" />
+              {t.home.hero.highlights.yearRoundSupport}
+            </span>
+          </div>
+        </div>
+
+        {/* Right: Illustration */}
+        <div className="hidden items-center justify-center md:flex">
+          <img
+            src="/professional_services.svg"
+            alt="Professional financial services"
+            className="w-full max-w-md opacity-90"
+          />
         </div>
       </div>
     </section>

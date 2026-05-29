@@ -77,22 +77,31 @@ export function AboutPage() {
           </div>
 
           <div className="mt-12 grid gap-8 md:grid-cols-3">
-            {t.about.team.members.map((member) => (
-              <Card key={member.id} variant="bordered" className="text-center">
-                <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-slate text-white">
-                  <span className="text-3xl font-bold">
-                    {member.name.charAt(0)}
-                  </span>
-                </div>
-                <h3 className="mb-1 text-xl font-semibold text-navy">
-                  {member.name}
-                </h3>
-                <p className="mb-3 text-sm font-medium text-primary">
-                  {member.role}
-                </p>
-                <p className="text-sm text-gray-600">{member.bio}</p>
-              </Card>
-            ))}
+            {t.about.team.members.map((member) => {
+              const photoMap: Record<string, string> = {
+                '1': '/team/daniel.jpg',
+                '2': '/team/scarlett.jpg',
+                '3': '/team/genesis.jpg',
+              };
+              return (
+                <Card key={member.id} variant="bordered" className="text-center">
+                  <div className="mx-auto mb-4 h-28 w-28 overflow-hidden rounded-full border-2 border-primary/30 ring-4 ring-primary/10">
+                    <img
+                      src={photoMap[member.id]}
+                      alt={member.name}
+                      className="h-full w-full object-cover object-top"
+                    />
+                  </div>
+                  <h3 className="mb-1 text-xl font-semibold text-navy">
+                    {member.name}
+                  </h3>
+                  <p className="mb-3 text-sm font-medium text-primary">
+                    {member.role}
+                  </p>
+                  <p className="text-sm text-gray-600">{member.bio}</p>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>

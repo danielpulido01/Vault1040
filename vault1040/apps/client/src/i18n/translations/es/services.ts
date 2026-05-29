@@ -16,7 +16,7 @@ export const services: ServicesTranslations = {
       name: 'Preparación de Impuestos',
       slug: 'tax-preparation',
       shortDescription:
-        '¡Concéntrese en su negocio mientras maximizamos sus ganancias!',
+        'Maximiza tus reembolsos y cumple con el IRS sin estrés. Olvídate de auditorías y multas.',
       description:
         'Presentamos cuidadosamente sus declaraciones de impuestos federales y estatales electrónicamente, minimizando su responsabilidad fiscal. Nuestro equipo experimentado garantiza precisión y cumplimiento con todas las regulaciones fiscales.',
       features: [
@@ -32,7 +32,7 @@ export const services: ServicesTranslations = {
       name: 'Contabilidad',
       slug: 'bookkeeping',
       shortDescription:
-        'Registros financieros precisos para decisiones empresariales informadas.',
+        'Información financiera en tiempo real para tu negocio. Siempre sabe a dónde va tu dinero.',
       description:
         'Mantenemos registros financieros precisos para respaldar decisiones empresariales informadas y facilitar el intercambio de información con inversores y bancos para la declaración adecuada de ingresos durante los períodos fiscales.',
       features: [
@@ -48,7 +48,7 @@ export const services: ServicesTranslations = {
       name: 'Constitución de Empresas',
       slug: 'corporate-setup',
       shortDescription:
-        'Inicie su negocio de la manera correcta con orientación experta.',
+        'Evita errores costosos al registrar tu empresa. Nosotros elegimos la estructura ideal y lo gestionamos todo.',
       description:
         'Asistencia con la formación de empresas, incluyendo selección del tipo de entidad, búsquedas de nombres y requisitos de registro para lanzar nuevos emprendimientos exitosamente.',
       features: [

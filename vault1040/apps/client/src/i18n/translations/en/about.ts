@@ -17,27 +17,27 @@ export const about: AboutTranslations = {
     items: [
       {
         id: 'service',
-        title: 'Service Vocation',
+        title: 'Human-First Advice',
         description:
-          'We are committed to delivering positive experiences and building lasting relationships with every client we serve.',
-      },
-      {
-        id: 'accessibility',
-        title: 'Accessibility',
-        description:
-          'Available 24/7, 365 days a year. We are always here when you need us, providing responsive support and guidance.',
+          'You\'re not a client number here — we speak your language and know your story. Every interaction is personal.',
       },
       {
         id: 'expertise',
-        title: 'Expertise',
+        title: 'Local Miami Experts',
         description:
-          'Our team continuously improves through ongoing training and education to provide you with the best possible service.',
+          'Based in the heart of Miami (Doral), we deeply understand the specific needs of our local and Hispanic business community.',
+      },
+      {
+        id: 'accessibility',
+        title: 'Always Reachable',
+        description:
+          'Questions about an IRS letter? A deduction? We\'re just one WhatsApp message away — real answers, no runaround.',
       },
       {
         id: 'dedication',
-        title: 'Dedication',
+        title: 'Your Community',
         description:
-          'Empathy and dedication are at the core of every client interaction. Your success is our success.',
+          'We understand the unique financial challenges of immigrant business owners and Miami\'s Hispanic community. We\'ve lived them too.',
       },
     ],
   },

@@ -17,27 +17,27 @@ export const about: AboutTranslations = {
     items: [
       {
         id: 'service',
-        title: 'Vocación de Servicio',
+        title: 'Asesoría Humana',
         description:
-          'Estamos comprometidos a brindar experiencias positivas y construir relaciones duraderas con cada cliente que atendemos.',
-      },
-      {
-        id: 'accessibility',
-        title: 'Accesibilidad',
-        description:
-          'Disponibles 24/7, 365 días al año. Siempre estamos aquí cuando nos necesita, brindando soporte y orientación receptiva.',
+          'Aquí no eres un número de cuenta; hablamos tu idioma y conocemos tu historia. Cada interacción es personal.',
       },
       {
         id: 'expertise',
-        title: 'Experiencia',
+        title: 'Expertos Locales',
         description:
-          'Nuestro equipo mejora continuamente a través de capacitación y educación continua para brindarle el mejor servicio posible.',
+          'Estamos en el corazón de Miami (Doral), entendiendo las necesidades específicas de la comunidad hispana y los negocios locales.',
+      },
+      {
+        id: 'accessibility',
+        title: 'Disponibilidad Real',
+        description:
+          '¿Dudas con una carta del IRS? ¿Preguntas sobre un gasto? Estamos a un WhatsApp de distancia — respuestas reales, sin vueltas.',
       },
       {
         id: 'dedication',
-        title: 'Dedicación',
+        title: 'Tu Comunidad',
         description:
-          'La empatía y la dedicación están en el centro de cada interacción con el cliente. Su éxito es nuestro éxito.',
+          'Entendemos los retos financieros únicos de los dueños de negocios inmigrantes y la comunidad hispana de Miami. Los hemos vivido.',
       },
     ],
   },

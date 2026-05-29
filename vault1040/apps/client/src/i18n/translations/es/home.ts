@@ -3,13 +3,13 @@ import type { HomeTranslations } from '../../types';
 export const home: HomeTranslations = {
   hero: {
     badge: 'Más de 1,000 Empresas Confían en Nosotros',
-    title: 'Tu tranquilidad',
-    titleAccent: 'Contable en Miami',
+    title: 'Tu tranquilidad contable en Miami,',
+    titleAccent: 'con atención 100% personalizada',
     subtitle:
-      'Servicios profesionales de impuestos, contabilidad y constitución de empresas en Miami.',
-    ctaPrimary: 'Consulta GRATIS',
+      'En Vault, no somos solo una firma de taxes; somos tus aliados financieros. Protegemos tu patrimonio y optimizamos tus impuestos para que tú te enfoques en lo que importa: tu crecimiento.',
+    ctaPrimary: 'Agendar Consultoría Gratuita',
     ctaSecondary: 'Ver Nuestros Servicios',
-    whatsapp: 'Whatsapp',
+    whatsapp: 'Hablar por WhatsApp',
     highlights: {
       irsCompliant: 'Cumplimiento IRS',
       maximizeReturns: 'Maximizar Reembolsos',
@@ -17,32 +17,32 @@ export const home: HomeTranslations = {
     },
   },
   services: {
-    subhead: 'Lo Que Ofrecemos',
-    title: 'Servicios',
-    titleAccent: 'Tributarios Integrales',
+    subhead: 'Nuestros 3 Pilares de Servicio',
+    title: 'Menos Estrés,',
+    titleAccent: 'Más Crecimiento',
     description:
-      'Proporcionamos servicios financieros integrales adaptados a sus necesidades individuales y empresariales.',
+      'Nos encargamos de la complejidad fiscal para que tú te enfoques en hacer crecer tu negocio.',
   },
   whyChooseUs: {
-    subhead: 'Por Qué Elegirnos',
-    title: 'La',
-    titleAccent: 'Diferencia Vault1040',
+    subhead: '¿Por Qué Elegir Vault?',
+    title: 'Aquí No Eres',
+    titleAccent: 'un Número de Cuenta',
     description:
-      'Somos más que una empresa de servicios fiscales. Nuestro compromiso con la excelencia nos distingue.',
+      'Hablamos tu idioma y conocemos tu historia. Esto es lo que nos diferencia de las grandes firmas impersonales.',
   },
   testimonials: {
-    subhead: 'Testimonios',
-    title: 'Lo Que Dicen',
-    titleAccent: 'Nuestros Clientes',
+    subhead: 'Historias de Clientes',
+    title: 'Resultados Reales para',
+    titleAccent: 'Dueños de Negocios Reales',
     description:
-      'Escuche a las empresas e individuos que confían en Vault1040 para sus necesidades financieras.',
+      'Emprendedores y familias de Miami que encontraron su tranquilidad financiera con Vault.',
   },
   cta: {
     badge: 'Consulta Gratuita Disponible',
-    title: '¿Listo para Comenzar?',
+    title: '¿Listo para Encontrar Tu Tranquilidad?',
     description:
-      'Programe su consulta gratuita hoy y descubra cómo Vault1040 puede ayudarlo a alcanzar sus metas financieras.',
+      'Agenda una consulta gratuita hoy y descubre cómo Vault puede proteger tu patrimonio y ayudar a crecer tu negocio.',
     bookButton: 'Agendar Consulta GRATIS',
-    callButton: 'Llámenos Ahora',
+    callButton: 'Hablar por WhatsApp',
   },
 };

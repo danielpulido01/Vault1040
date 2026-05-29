@@ -3,7 +3,20 @@
     "allow": [
       "Bash(DATABASE_URL=\"postgresql://vault1040_user:ShjzFT264MSapcUdZv9Vecdx8JNkPbT8@dpg-d6jgh9vgi27c73d4k1r0-a.oregon-postgres.render.com/vault1040\" pnpm run db:seed:*)",
       "WebFetch(domain:search.sunbiz.org)",
-      "Bash(pnpm add *)"
+      "Bash(pnpm add *)",
+      "Bash(xargs grep -l \"companyValues\")",
+      "WebFetch(domain:vault1040.com)",
+      "Bash(New-Item -ItemType Directory -Force \"d:\\\\Repos\\\\homepage-vault\\\\vault1040\\\\apps\\\\client\\\\public\\\\team\")",
+      "Bash(Out-Null)",
+      "Bash(Copy-Item \"d:\\\\Repos\\\\homepage-vault\\\\images\\\\daniel.jpg\" \"d:\\\\Repos\\\\homepage-vault\\\\vault1040\\\\apps\\\\client\\\\public\\\\team\\\\daniel.jpg\")",
+      "Bash(Copy-Item \"d:\\\\Repos\\\\homepage-vault\\\\images\\\\scarlett.jpg\" \"d:\\\\Repos\\\\homepage-vault\\\\vault1040\\\\apps\\\\client\\\\public\\\\team\\\\scarlett.jpg\")",
+      "Bash(Copy-Item \"d:\\\\Repos\\\\homepage-vault\\\\images\\\\genesis.jpg\" \"d:\\\\Repos\\\\homepage-vault\\\\vault1040\\\\apps\\\\client\\\\public\\\\team\\\\genesis.jpg\")",
+      "Bash(Copy-Item \"d:\\\\Repos\\\\homepage-vault\\\\images\\\\professional_services.svg\" \"d:\\\\Repos\\\\homepage-vault\\\\vault1040\\\\apps\\\\client\\\\public\\\\professional_services.svg\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"d:\\\\Repos\\\\homepage-vault\\\\vault1040\\\\apps\\\\client\\\\public\\\\team\")",
+      "PowerShell(Copy-Item \"d:\\\\Repos\\\\homepage-vault\\\\images\\\\daniel.jpg\" \"d:\\\\Repos\\\\homepage-vault\\\\vault1040\\\\apps\\\\client\\\\public\\\\team\\\\daniel.jpg\" -Force)",
+      "PowerShell(Copy-Item \"d:\\\\Repos\\\\homepage-vault\\\\images\\\\scarlett.jpg\" \"d:\\\\Repos\\\\homepage-vault\\\\vault1040\\\\apps\\\\client\\\\public\\\\team\\\\scarlett.jpg\" -Force)",
+      "PowerShell(Copy-Item \"d:\\\\Repos\\\\homepage-vault\\\\images\\\\genesis.jpg\" \"d:\\\\Repos\\\\homepage-vault\\\\vault1040\\\\apps\\\\client\\\\public\\\\team\\\\genesis.jpg\" -Force)",
+      "PowerShell(Copy-Item \"d:\\\\Repos\\\\homepage-vault\\\\images\\\\professional_services.svg\" \"d:\\\\Repos\\\\homepage-vault\\\\vault1040\\\\apps\\\\client\\\\public\\\\professional_services.svg\" -Force)"
     ]
   }
 }
