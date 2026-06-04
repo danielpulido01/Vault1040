@@ -3,7 +3,7 @@ import type { ServicesTranslations } from '../../types';
 export const services: ServicesTranslations = {
   pageTitle: 'Nuestros Servicios',
   pageSubtitle:
-    'Soluciones financieras integrales adaptadas a sus necesidades individuales y empresariales.',
+    'Tu negocio merece una base sólida. Nosotros te la construimos.',
   ctaButton: 'Consulta GRATIS',
   bottomCta: {
     title: '¿Listo para Comenzar?',
@@ -16,9 +16,9 @@ export const services: ServicesTranslations = {
       name: 'Preparación de Impuestos',
       slug: 'tax-preparation',
       shortDescription:
-        'Maximiza tus reembolsos y cumple con el IRS sin estrés. Olvídate de auditorías y multas.',
+        'Paga lo justo. Ni un centavo más.',
       description:
-        'Presentamos cuidadosamente sus declaraciones de impuestos federales y estatales electrónicamente, minimizando su responsabilidad fiscal. Nuestro equipo experimentado garantiza precisión y cumplimiento con todas las regulaciones fiscales.',
+        'Preparamos tu declaración federal y estatal con precisión quirúrgica. Si el IRS te llama, nosotros respondemos. Si hay errores, los cubrimos.',
       features: [
         'Presentación de declaraciones federales y estatales',
         'Presentación electrónica para reembolsos más rápidos',
@@ -28,19 +28,20 @@ export const services: ServicesTranslations = {
       ],
     },
     {
-      id: 'bookkeeping',
-      name: 'Contabilidad',
-      slug: 'bookkeeping',
+      id: 'llc-formation',
+      name: 'Formación de LLC en Florida',
+      slug: 'llc-formation',
       shortDescription:
-        'Información financiera en tiempo real para tu negocio. Siempre sabe a dónde va tu dinero.',
+        'Forme su LLC en Florida hoy — nosotros nos encargamos del papeleo.',
       description:
-        'Mantenemos registros financieros precisos para respaldar decisiones empresariales informadas y facilitar el intercambio de información con inversores y bancos para la declaración adecuada de ingresos durante los períodos fiscales.',
+        'Presentamos sus Artículos de Organización ante la División de Corporaciones de Florida. Incluye designación de agente registrado, estructura de gestión y confirmación una vez aprobado en Sunbiz.',
       features: [
-        'Preparación de estados financieros mensuales',
-        'Conciliación bancaria',
-        'Cuentas por pagar y por cobrar',
-        'Procesamiento de nómina',
-        'Informes financieros',
+        'Presentación de Artículos de Organización (tarifa estatal de $125 incluida)',
+        'Designación de agente registrado',
+        'Estructura de gestión por miembros o gerentes',
+        'Plantilla de acuerdo operativo',
+        'Orientación para solicitud de EIN',
+        'Confirmación una vez registrado en Sunbiz',
       ],
     },
     {
@@ -60,20 +61,19 @@ export const services: ServicesTranslations = {
       ],
     },
     {
-      id: 'llc-formation',
-      name: 'Formación de LLC en Florida',
-      slug: 'llc-formation',
+      id: 'bookkeeping',
+      name: 'Contabilidad',
+      slug: 'bookkeeping',
       shortDescription:
-        'Forme su LLC en Florida hoy — nosotros nos encargamos del papeleo.',
+        'Información financiera en tiempo real para tu negocio. Siempre sabe a dónde va tu dinero.',
       description:
-        'Presentamos sus Artículos de Organización ante la División de Corporaciones de Florida. Incluye designación de agente registrado, estructura de gestión y confirmación una vez aprobado en Sunbiz.',
+        'Mantenemos registros financieros precisos para respaldar decisiones empresariales informadas y facilitar el intercambio de información con inversores y bancos para la declaración adecuada de ingresos durante los períodos fiscales.',
       features: [
-        'Presentación de Artículos de Organización (tarifa estatal de $125 incluida)',
-        'Designación de agente registrado',
-        'Estructura de gestión por miembros o gerentes',
-        'Plantilla de acuerdo operativo',
-        'Orientación para solicitud de EIN',
-        'Confirmación una vez registrado en Sunbiz',
+        'Preparación de estados financieros mensuales',
+        'Conciliación bancaria',
+        'Cuentas por pagar y por cobrar',
+        'Procesamiento de nómina',
+        'Informes financieros',
       ],
     },
   ],
