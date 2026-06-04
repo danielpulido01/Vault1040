@@ -13,6 +13,13 @@ export function HeroSection() {
 
   return (
     <section className="relative overflow-hidden bg-navy">
+      <img
+        src="/Home.png"
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full object-cover object-center opacity-20"
+      />
+      <div className="absolute inset-0 bg-navy/75" />
       <div
         className="absolute inset-0 opacity-[0.04]"
         style={{

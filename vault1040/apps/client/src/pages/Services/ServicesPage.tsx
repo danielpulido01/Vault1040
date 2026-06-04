@@ -10,8 +10,15 @@ export function ServicesPage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-navy to-navy-light py-16 md:py-24">
-        <div className="container text-center">
+      <section className="relative overflow-hidden bg-gradient-to-br from-navy to-navy-light py-16 md:py-24">
+        <img
+          src="/Servicios.png"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover object-center opacity-25"
+        />
+        <div className="absolute inset-0 bg-navy/70" />
+        <div className="container relative text-center">
           <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl">
             {t.services.pageTitle}
           </h1>
