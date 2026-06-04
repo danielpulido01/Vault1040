@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
+import { WhatsAppFloatingButton } from './components/layout/WhatsAppFloatingButton';
 import { HomePage } from './pages/Home/HomePage';
 import { ServicesPage } from './pages/Services/ServicesPage';
 import { AboutPage } from './pages/About/AboutPage';
@@ -32,6 +33,7 @@ function MainLayout({ children }: { children: React.ReactNode }) {
       <Header />
       <main className="flex-1">{children}</main>
       <Footer />
+      <WhatsAppFloatingButton />
     </div>
   );
 }
