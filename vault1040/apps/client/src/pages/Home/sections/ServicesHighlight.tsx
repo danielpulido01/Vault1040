@@ -52,7 +52,7 @@ export function ServicesHighlight() {
                   to="/booking"
                   className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-all duration-300 hover:gap-3"
                 >
-                  Book appointment <ArrowRight className="h-4 w-4" />
+                  {t.services.ctaButton} <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             );

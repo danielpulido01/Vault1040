@@ -2,33 +2,33 @@ import type { HomeTranslations } from '../../types';
 
 export const home: HomeTranslations = {
   hero: {
-    badge: 'Más de 1,000 Empresas Confían en Nosotros',
-    title: 'Tu tranquilidad contable en Miami,',
-    titleAccent: 'con atención 100% personalizada',
+    badge: 'Taxes, contabilidad y creacion de empresas en Miami',
+    title: 'Resuelve tus taxes y tu negocio sin estrés,',
+    titleAccent: 'con atención real y personalizada',
     subtitle:
-      'En Vault, no somos solo una firma de taxes; somos tus aliados financieros. Protegemos tu patrimonio y optimizamos tus impuestos para que tú te enfoques en lo que importa: tu crecimiento.',
-    ctaPrimary: 'Agendar Consultoría Gratuita',
+      'Te ayudamos a pagar lo justo, ordenar tu contabilidad y abrir tu empresa sin errores ni vueltas. Hablas con personas reales que te dicen exactamente cuál es el siguiente paso.',
+    ctaPrimary: 'Agendar Consulta Gratuita',
     ctaSecondary: 'Ver Nuestros Servicios',
     whatsapp: 'Hablar por WhatsApp',
     highlights: {
-      irsCompliant: 'Cumplimiento IRS',
-      maximizeReturns: 'Maximizar Reembolsos',
-      yearRoundSupport: 'Soporte Todo el Año',
+      irsCompliant: 'Cumplimiento claro con el IRS',
+      maximizeReturns: 'Más claridad sobre tu dinero',
+      yearRoundSupport: 'Respuestas reales por WhatsApp',
     },
   },
   services: {
-    subhead: 'Nuestros 3 Pilares de Servicio',
-    title: 'Menos Estrés,',
-    titleAccent: 'Más Crecimiento',
+    subhead: '3 servicios principales',
+    title: 'Menos vueltas,',
+    titleAccent: 'más claridad',
     description:
-      'Nos encargamos de la complejidad fiscal para que tú te enfoques en hacer crecer tu negocio.',
+      'Elige lo que necesitas y te guiamos con una propuesta simple, directa y enfocada en resultado.',
   },
   whyChooseUs: {
-    subhead: '¿Por Qué Elegir Vault?',
-    title: 'Aquí No Eres',
-    titleAccent: 'un Número de Cuenta',
+    subhead: 'Por qué Vault',
+    title: 'Hablas con personas,',
+    titleAccent: 'no con una franquicia',
     description:
-      'Hablamos tu idioma y conocemos tu historia. Esto es lo que nos diferencia de las grandes firmas impersonales.',
+      'Atención local, equipo real y acompañamiento rápido cuando necesitas resolver un tema fiscal o mover tu negocio.',
   },
   testimonials: {
     subhead: 'Historias de Clientes',
@@ -38,11 +38,11 @@ export const home: HomeTranslations = {
       'Emprendedores y familias de Miami que encontraron su tranquilidad financiera con Vault.',
   },
   cta: {
-    badge: 'Consulta Gratuita Disponible',
-    title: '¿Listo para Encontrar Tu Tranquilidad?',
+    badge: 'Empieza hoy',
+    title: 'Agenda y te decimos por dónde empezar',
     description:
-      'Agenda una consulta gratuita hoy y descubre cómo Vault puede proteger tu patrimonio y ayudar a crecer tu negocio.',
-    bookButton: 'Agendar Consulta GRATIS',
+      'En una consulta corta te diremos qué necesitas, cuánto tarda y cuál es el siguiente paso para resolverlo.',
+    bookButton: 'Agendar Consulta Gratis',
     callButton: 'Hablar por WhatsApp',
   },
 };
