@@ -80,6 +80,8 @@ export interface HomeTranslations {
     title: string;
     titleAccent: string;
     description: string;
+    featuredBadge: string;
+    featuredIncludes: string;
   };
   whyChooseUs: {
     subhead: string;

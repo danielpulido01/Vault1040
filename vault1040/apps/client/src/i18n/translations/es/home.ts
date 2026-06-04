@@ -17,11 +17,13 @@ export const home: HomeTranslations = {
     },
   },
   services: {
-    subhead: '3 servicios principales',
+    subhead: '4 servicios principales',
     title: 'Menos vueltas,',
     titleAccent: 'más claridad',
     description:
       'Elige lo que necesitas y te guiamos con una propuesta simple, directa y enfocada en resultado.',
+    featuredBadge: 'Servicio destacado',
+    featuredIncludes: 'Que incluye',
   },
   whyChooseUs: {
     subhead: 'Por qué Vault',
