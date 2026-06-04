@@ -17,7 +17,7 @@ export function HeroSection() {
         src="/Home.png"
         alt=""
         aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-cover object-center opacity-20"
+        className="absolute inset-0 h-full w-full object-cover object-center opacity-50"
       />
       <div className="absolute inset-0 bg-navy/75" />
       <div

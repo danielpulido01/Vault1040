@@ -15,7 +15,7 @@ export function ServicesPage() {
           src="/Servicios.png"
           alt=""
           aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover object-center opacity-25"
+          className="absolute inset-0 h-full w-full object-cover object-center opacity-50"
         />
         <div className="absolute inset-0 bg-navy/70" />
         <div className="container relative text-center">
